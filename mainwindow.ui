@@ -18,11 +18,14 @@
     <normaloff>:/icons/64x64/offlineshop.png</normaloff>:/icons/64x64/offlineshop.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
        <number>2</number>
+      </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
       </property>
       <widget class="QWidget" name="tab_pricelist">
        <attribute name="title">
@@ -69,14 +72,18 @@
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>true</bool>
           </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tabCarts">
        <attribute name="title">
-        <string>Page</string>
+        <string>Cart</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_3"/>
       </widget>
      </widget>
     </item>

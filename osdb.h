@@ -17,6 +17,7 @@ public:
     explicit osDb(QObject *parent = 0);
 
     bool createAllTables();
+    bool createEmptyShoppingCart(int customerid, QString date);
     bool fillAllExampleData();
     bool fillPricelistExampleData();
     bool fillCustomerExampleData();
@@ -32,7 +33,7 @@ public:
 private:
     bool createTablePricelist();
     bool createTableCustomer();
-    bool createEmptyShoppingCart(QString cartname, int customerid, QString date);
+
     QSqlDatabase db;
     QString lastErrorMsg;
 

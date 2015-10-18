@@ -7,6 +7,20 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    tab_index_pricelist = 0;
+    tab_index_customer = 1;
+    tab_index_cart = 2;
+
+    this->ui->tabWidget->tabBar()->tabButton(0,QTabBar::RightSide)->resize(0, 0);
+    this->ui->tabWidget->tabBar()->tabButton(1,QTabBar::RightSide)->resize(0, 0);
+
+    //cart_widget = new CartWidget(this->ui->tabWidget);
+
+
+    this->ui->tabCarts->setHidden(true);
+
+    this->ui->tabWidget->removeTab(tab_index_cart);
+
     this->toggleInputEnabled(false);
 
     osDatabase = new osDb();
@@ -39,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     modelCustomer = new QSqlRelationalTableModel(this,QSqlDatabase::database(genericHelper::getAppName()));
 
-
+    modelCart = new QSqlRelationalTableModel(this,QSqlDatabase::database(genericHelper::getAppName()));
 
     proxymodelCustomer = new AdvQSortFilterProxyModel(this);
 
@@ -49,14 +63,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     open_mailclient = new QAction(tr("Open in &Mail Client"), this);
 
+    new_cart = new QAction(tr("New &Cart"), this);
+
 
     signalMapperEmailAddress = new QSignalMapper(this);
 
     QObject::connect(open_mailclient, SIGNAL(triggered()), signalMapperEmailAddress, SLOT(map()));
 
-
-
     QObject::connect(signalMapperEmailAddress, SIGNAL(mapped(QString)), this, SLOT(on_open_MailClient(QString)));
+
+
+    signalMapperCart = new QSignalMapper(this);
+
+    QObject::connect(new_cart, SIGNAL(triggered()), signalMapperCart, SLOT(map()));
+
+    QObject::connect(signalMapperCart, SIGNAL(mapped(QString)), this, SLOT(on_open_Cart(QString)));
 
     //connect(open_mailclient, SIGNAL(triggered()), this, SLOT(on_open_MailClient()));
 
@@ -69,7 +90,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     emailAddressContextMenu = new QMenu("E-Mail", this);
 
+
+    cartContextMenu = new QMenu("Cart", this);
+
+
     QObject::connect(this, SIGNAL(databaseLoaded()), this, SLOT(on_loaded_Database()));
+
 
 }
 
@@ -80,6 +106,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNew_Database_triggered()
 {
+
+    if (osDatabase->isOpen()) {
+        if (this->closeDatabase() == false) {
+            return;
+        }
+    }
+
+
     QString fileName = QFileDialog::getSaveFileName(this, tr("New Database"),"",
                                                     tr("SQLite DB (*.db)"));
     if (!fileName.isEmpty()) {
@@ -100,6 +134,18 @@ void MainWindow::on_actionNew_Database_triggered()
 
 void MainWindow::on_actionOpen_Database_triggered()
 {
+
+
+
+    if (osDatabase->isOpen()) {
+        if (this->closeDatabase() == false) {
+            return;
+        }
+    }
+
+
+
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Database"),"",
                                                       tr("SQLite DB (*.db)"));
       if (!fileName.isEmpty()) {
@@ -123,11 +169,9 @@ void MainWindow::on_actionOpen_Database_triggered()
 
 void MainWindow::on_actionClose_Database_triggered()
 {
-    if (osDatabase->isOpen()) {
-        osDatabase->close();
-        ui->statusBar->showMessage(tr("Database closed"), defaultStatusTimeout);
-        this->toggleInputEnabled(false);
-    }
+
+
+    this->closeDatabase();
 }
 
 void MainWindow::toggleInputEnabled(bool toggle)
@@ -204,12 +248,44 @@ void MainWindow::submit(QSqlRelationalTableModel *model)
      ui->statusBar->showMessage(tr("Database saved"), defaultStatusTimeout);
 }
 
+bool MainWindow::closeDatabase()
+{
+    if (osDatabase->isOpen()) {
+
+        if (modelPricelist->isDirty() | modelCustomer->isDirty()) {
+            qDebug() << "is dirty on close";
+            QMessageBox::StandardButton ret;
+            ret = QMessageBox::warning(this, genericHelper::getAppName(), tr("The database has been modified.\n Do you want to save your changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+
+            if (ret == QMessageBox::Save) {
+                 this->submit(modelPricelist);
+                 this->submit(modelCustomer);
+            }
+            if (ret == QMessageBox::Discard) {
+                modelPricelist->revertAll();
+                modelPricelist->select();
+                modelCustomer->revertAll();
+                modelCustomer->select();
+            }
+            if (ret == QMessageBox::Cancel) {
+                return false;
+            }
+
+        }
+
+        osDatabase->close();
+        ui->statusBar->showMessage(tr("Database closed"), defaultStatusTimeout);
+        this->toggleInputEnabled(false);
+
+        return true;
+    }
+}
+
 
 void MainWindow::on_actionQuit_triggered()
 {
     if (osDatabase->isOpen()) {
-        osDatabase->close();
-        this->toggleInputEnabled(false);
+        this->closeDatabase();
     }
     qApp->quit();
 }
@@ -217,7 +293,13 @@ void MainWindow::on_actionQuit_triggered()
 void MainWindow::on_open_RecentFile(QString fileName)
 {
 
-qDebug() << "on_open_RecentFile";
+    if (osDatabase->isOpen()) {
+        if (this->closeDatabase() == false) {
+            return;
+        }
+    }
+
+
     bool ret = osDatabase->open(fileName);
 
     if( ret == false) {
@@ -232,6 +314,45 @@ qDebug() << "on_open_RecentFile";
     }
 
 }
+
+void MainWindow::on_open_Cart(QString customerid)
+{
+
+    cart_widget = new CartWidget(this->ui->tabWidget);
+
+    if (this->ui->tabWidget->count() <= 2) {
+
+        this->ui->tabWidget->addTab(cart_widget,tr("Cart"));
+
+
+
+    }
+
+    QString _timestmap = genericHelper::getPrettyTimestamp();
+
+    cart_widget->setCustomerId(customerid);
+    cart_widget->setCustomerName(this->proxymodelCustomer->getColData(1,customerid,2).toString());
+    cart_widget->setDate(_timestmap);
+
+    if (osDatabase->isOpen()) {
+       if (osDatabase->createEmptyShoppingCart(customerid.toInt(),_timestmap.replace(":","").replace(" ","").replace("-","")) == true ) {
+        this->modelCart->setTable("cart_"+customerid+"_"+_timestmap);
+        this->modelCart->select();
+        this->cart_widget->setModel(modelCart);
+
+       }
+    }
+
+    //this->modelCustomer->setTable("customer");
+    //this->modelCustomer->select();
+
+    this->ui->tabWidget->setCurrentIndex(tab_index_cart);
+
+}
+
+
+
+
 
 void MainWindow::on_loaded_Database()
 {
@@ -400,6 +521,19 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
 
         emailAddressContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
 
+    } else {
+
+
+        if (this->ui->tabWidget->count() <= 2) {
+
+        cartContextMenu->addAction(new_cart);
+
+        signalMapperCart->setMapping(new_cart, QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+
+        cartContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
+
+        }
+
     }
 
 
@@ -407,12 +541,13 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
 
 void MainWindow::on_actionDelete_Entry_triggered()
 {
-    if (this->ui->tabWidget->currentIndex() == 0) {
-        modelPricelist->insertRecord(modelPricelist->rowCount(),modelPricelist->record());
-        ui->tableViewPricelist->scrollToBottom();
-    } else {
-        modelCustomer->insertRecord(modelCustomer->rowCount(),modelCustomer->record());
-        ui->tableViewCustomer->scrollToBottom();
-        modelCustomer->deleteRowFromTable(modelCustomer->)
+
+}
+
+void MainWindow::on_tabWidget_tabCloseRequested(int index)
+{
+
+    if (index == 2) {
+        this->ui->tabWidget->removeTab(tab_index_cart);
     }
 }

@@ -14,6 +14,7 @@ public:
 
    AdvQSortFilterProxyModel(QObject* parent);
    QVariant data ( const QModelIndex & index, int role ) const;
+   QVariant getColData(int keycol, QVariant key, int updatecol);
 
 
 protected:

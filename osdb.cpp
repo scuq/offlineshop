@@ -501,7 +501,7 @@ bool osDb::createTableCustomer()
 
 }
 
-bool osDb::createEmptyShoppingCart(QString cartname, int customerid, QString date)
+bool osDb::createEmptyShoppingCart(int customerid, QString date)
 {
     QString table = "cart_"+QString::number(customerid)+"_"+date;
 
@@ -527,61 +527,7 @@ bool osDb::createEmptyShoppingCart(QString cartname, int customerid, QString dat
 
 
 
-         ret = query.exec("SELECT COUNT(*) FROM "+table+" LIMIT 1;");
 
-         query.next();
-
-         if (query.value(0).toString().toInt() == 0) {
-
-             genericHelper::log("create table "+table+" with default content");
-
-             query.prepare( "INSERT INTO "+table+" "
-                            "('productid', 'article_desc', 'currency', 'price_unit') "
-                            "VALUES (?, ?, ?, ?) ");
-
-             QVariantList productid;
-             QVariantList units;
-             QVariantList packages;
-             QVariantList customer_want_info;
-             QVariantList customer_want_training;
-             QVariantList customer_want_trial;
-
-
-             productid << "1";
-
-             units << "100";
-
-             packages << "2";
-
-             customer_want_info << "2";
-
-             customer_want_training << "2";
-
-             customer_want_trial << "2";
-
-
-
-
-             query.addBindValue(productid);
-             query.addBindValue(units);
-             query.addBindValue(packages);
-             query.addBindValue(customer_want_info);
-             query.addBindValue(customer_want_training);
-             query.addBindValue(customer_want_trial);
-
-
-             qDebug() << query.result();
-
-             if (!query.execBatch()) {
-                 ret = false;
-                 genericHelper::log("db error: "+query.lastError().text());
-                 genericHelper::log("db query: "+query.executedQuery());
-
-             } else {
-                 ret = true;
-             }
-
-          }
 
 
 

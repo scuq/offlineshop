@@ -40,6 +40,8 @@ public:
      static bool setRecentFiles(QStringList recentfiles);
      static bool addRecentFiles(QString recentfile, int maxrecent);
      static void log(QString logstring);
+     static QString getTimestamp();
+     static QString getPrettyTimestamp();
      static int getProcessPollInterval();
      static bool setProcessPollInterval(int interval);
      static int getGuiPollInterval();
@@ -61,3 +63,4 @@ public slots:
 };
 
 #endif // GENERICHELPER_H
+

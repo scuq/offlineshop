@@ -16,6 +16,7 @@
 #include <myfloatdelegate.h>
 #include <mycurrencycombodelegate.h>
 #include <myemaillineeditdelegate.h>
+#include "cartwidget.h"
 
 #include "osdb.h"
 
@@ -42,6 +43,8 @@ private slots:
 
     void on_open_RecentFile(QString fileName);
 
+    void on_open_Cart(QString customerid);
+
     void on_loaded_Database();
 
     void on_open_MailClient(QString mailaddress);
@@ -60,6 +63,8 @@ private slots:
 
     void on_actionDelete_Entry_triggered();
 
+    void on_tabWidget_tabCloseRequested(int index);
+
 private:
     Ui::MainWindow *ui;
     osDb *osDatabase;
@@ -68,6 +73,7 @@ private:
     QList<QAction*> recentFileActions;
     QSqlRelationalTableModel *modelPricelist;
     QSqlRelationalTableModel *modelCustomer;
+    QSqlRelationalTableModel *modelCart;
     MyIntDelegate *iDelegateProductId;
     MyIntDelegate *iDelegateArticleLength;
     MyIntDelegate *iDelegateArticleDepth;
@@ -80,6 +86,9 @@ private:
     MyFloatDelegate *fDelegatePricePackage;
     MyCurrencyComboDelegate *cbxMyCurrencyComboDelegate;
     MyEmailLineEditDelegate *emlMyEmailDelegate;
+    int tab_index_pricelist;
+    int tab_index_customer;
+    int tab_index_cart;
 
     MyIntDelegate *iDelegateCustomerId;
 
@@ -90,9 +99,16 @@ private:
     QMenu *emailAddressContextMenu;
     QSignalMapper *signalMapperEmailAddress;
 
+    QAction *new_cart;
+    QMenu *cartContextMenu;
+    QSignalMapper *signalMapperCart;
+
+    CartWidget *cart_widget;
+
     void toggleInputEnabled(bool toggle);
     void fillRecentFileHistory();
     void submit(QSqlRelationalTableModel *model);
+    bool closeDatabase();
 
 signals:
     void databaseLoaded();

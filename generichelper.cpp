@@ -180,6 +180,16 @@ void genericHelper::log(QString logstring) {
     file.close();
 }
 
+QString genericHelper::getTimestamp()
+{
+    return QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+}
+
+QString genericHelper::getPrettyTimestamp()
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+}
+
 
 QString genericHelper::getLastErrorMsg() {
     LPWSTR bufPtr = NULL;
