@@ -9,6 +9,9 @@
 #include <QtSql/QSqlError>
 #include <QStringList>
 #include "generichelper.h"
+#include <QSqlRecord>
+#include <QRegExp>
+#include <QStringList>
 
 class osDb : public QObject
 {
@@ -21,7 +24,9 @@ public:
     bool fillAllExampleData();
     bool fillPricelistExampleData();
     bool fillCustomerExampleData();
+    bool addItemToCart(int productid, QString cartname);
     bool open(QString path);
+    QStringList getTables(QRegExp rxFilter);
 
     bool close();
     bool testConn();

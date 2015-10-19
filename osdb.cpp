@@ -117,6 +117,7 @@ bool osDb::fillCustomerExampleData()
 
     QString table = "customer";
 
+
     genericHelper::log("checking table: "+table);
 
 
@@ -250,6 +251,141 @@ bool osDb::fillCustomerExampleData()
     return ret;
 }
 
+bool osDb::addItemToCart(int productid, QString cartname)
+{
+
+
+
+    bool ret = false;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+
+         QSqlQuery query(QSqlDatabase::database(genericHelper::getAppName()));
+
+
+         QString table_pricelist = "pricelist";
+         QString table = cartname;
+
+         query.prepare("SELECT COUNT(*) FROM "+table_pricelist+" WHERE productid="+QString::number(productid)+";");
+
+
+         if (!query.exec()) {
+             ret = false;
+             genericHelper::log("db error: "+query.lastError().text());
+             genericHelper::log("db query: "+query.executedQuery());
+
+         } else {
+             ret = true;
+         }
+
+        query.next();
+
+
+
+         if (query.value(0).toString().toInt() > 0) {
+
+             QVariantList productids;
+             QVariantList article_name;
+             QVariantList units;
+             QVariantList packages;
+             QVariantList price_unit;
+             QVariantList price_package;
+             QVariantList currency;
+             QVariantList delivery_time;
+
+             genericHelper::log("found "+query.value(0).toString()+" product matching productid: "+QString::number(productid));
+
+             query.prepare("SELECT * FROM "+table_pricelist+" WHERE productid="+QString::number(productid)+" LIMIT 1 ;");
+
+             if (!query.exec()) {
+                 ret = false;
+                 genericHelper::log("db error: "+query.lastError().text());
+                 genericHelper::log("db query: "+query.executedQuery());
+
+             } else {
+                 ret = true;
+             }
+
+             query.next();
+
+             QSqlRecord rec = query.record();
+
+
+
+             for (int i=0; i<rec.count(); i++) {
+               if (rec.fieldName(i) == "productid") {
+                    productids << rec.value(i);
+                    continue;
+               }
+               if (rec.fieldName(i) == "article_name") {
+                    article_name << rec.value(i);
+                    continue;
+               }
+               if (rec.fieldName(i) == "price_unit") {
+                    price_unit << rec.value(i);
+                    continue;
+               }
+               if (rec.fieldName(i) == "price_package") {
+                    price_package << rec.value(i);
+                    continue;
+               }
+               if (rec.fieldName(i) == "currency") {
+                    currency << rec.value(i);
+                    continue;
+               }
+               if (rec.fieldName(i) == "delivery_time") {
+                    delivery_time << rec.value(i);
+                    continue;
+               }
+
+             }
+
+             units << 1;
+             packages << 0;
+
+             query.finish();
+             query.clear();
+
+
+             query.prepare( "INSERT INTO "+table+" "
+                            "('productid', 'article_name', 'units', 'packages', 'price_unit', 'price_package', 'currency', 'delivery_time') "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ");
+
+
+             query.addBindValue(productids);
+             query.addBindValue(article_name);
+             query.addBindValue(units);
+             query.addBindValue(packages);
+             query.addBindValue(price_unit);
+             query.addBindValue(price_package);
+             query.addBindValue(currency);
+             query.addBindValue(delivery_time);
+
+
+             if (!query.execBatch()) {
+                 ret = false;
+                 genericHelper::log("db error: "+query.lastError().text());
+                 genericHelper::log("db query: "+query.executedQuery());
+
+             } else {
+                 ret = true;
+             }
+
+
+         } else {
+             genericHelper::log("no products matching productid: "+QString::number(productid)+" found");
+         }
+
+
+
+
+
+    }
+
+    return ret;
+}
+
 
 
 bool osDb::open(QString path)
@@ -284,6 +420,36 @@ bool osDb::open(QString path)
     lastErrorMsg = db.lastError().text();
 
     return true; // Database sucessfully opened
+}
+
+QStringList osDb::getTables(QRegExp rxFilter)
+{
+
+
+
+
+    QStringList tables;
+    QStringList tablesfiltered;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+        tables = QSqlDatabase::database(genericHelper::getAppName()).tables();
+    }
+
+
+    for( int i=0; i<tables.count(); ++i )
+    {
+
+        if(QString(tables.at(i)).contains(rxFilter) == true ) {
+
+            tablesfiltered.append(tables.at(i));
+
+        }
+    }
+
+
+
+    return tablesfiltered;
 }
 
 bool osDb::close()
@@ -518,8 +684,13 @@ bool osDb::createEmptyShoppingCart(int customerid, QString date)
          ret = query.exec("CREATE TABLE IF NOT EXISTS "+table+" "
                                  "(id INTEGER PRIMARY KEY, "
                             "productid BIGINT UNIQUE, "
+                            "article_name VARCHAR NOT NULL, "
                             "units INT, "
                             "packages INT, "
+                            "price_unit REAL, "
+                            "price_package REAL, "
+                            "currency VARCHAR(3), "
+                            "delivery_time INT "
                             "customer_want_info BOOL, "
                             "customer_want_training BOOL, "
                             "customer_want_trial BOOL "

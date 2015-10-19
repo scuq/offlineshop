@@ -23,6 +23,7 @@ public:
 
 private:
     Ui::CartWidget *ui;
+
 };
 
 #endif // CARTWIDGET_H

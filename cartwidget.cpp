@@ -37,4 +37,5 @@ void CartWidget::setModel(QSqlRelationalTableModel *model)
 {
     this->ui->tableViewCart->setModel(model);
     this->ui->tableViewCart->resizeColumnsToContents();
+    this->ui->tableViewCart->setColumnHidden(0,true);
 }

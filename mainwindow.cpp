@@ -14,9 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->tabWidget->tabBar()->tabButton(0,QTabBar::RightSide)->resize(0, 0);
     this->ui->tabWidget->tabBar()->tabButton(1,QTabBar::RightSide)->resize(0, 0);
 
-    //cart_widget = new CartWidget(this->ui->tabWidget);
-
-
     this->ui->tabCarts->setHidden(true);
 
     this->ui->tabWidget->removeTab(tab_index_cart);
@@ -24,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toggleInputEnabled(false);
 
     osDatabase = new osDb();
+
 
     maxRecentFiles = 4;
 
@@ -65,6 +63,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     new_cart = new QAction(tr("New &Cart"), this);
 
+    show_carts = new QAction(tr("&Show Carts"), this);
+
+    add_to_cart = new QAction(tr("Add to &Cart"), this);
 
     signalMapperEmailAddress = new QSignalMapper(this);
 
@@ -79,23 +80,33 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(signalMapperCart, SIGNAL(mapped(QString)), this, SLOT(on_open_Cart(QString)));
 
-    //connect(open_mailclient, SIGNAL(triggered()), this, SLOT(on_open_MailClient()));
+    signalMapperShowCart = new QSignalMapper(this);
 
-    /**
+    QObject::connect(show_carts, SIGNAL(triggered()), signalMapperShowCart, SLOT(map()));
 
-         QObject::connect(_recentFileAction, SIGNAL(triggered()), signalMapper, SLOT(map()));
-         signalMapper->setMapping(_recentFileAction, QString(_currRecentFile));
-         QObject::connect(signalMapper, SIGNAL(mapped(QString)), this, SLOT(on_open_RecentFile(QString)));
-      **/
+    QObject::connect(signalMapperShowCart, SIGNAL(mapped(QString)), this, SLOT(on_show_Carts(QString)));
+
+
+    signalMapperPricelist = new QSignalMapper(this);
+
+    QObject::connect(add_to_cart, SIGNAL(triggered()), signalMapperPricelist, SLOT(map()));
+
+    QObject::connect(signalMapperPricelist, SIGNAL(mapped(QString)), this, SLOT(on_add_Cart(QString)));
+
 
     emailAddressContextMenu = new QMenu("E-Mail", this);
 
-
     cartContextMenu = new QMenu("Cart", this);
+
+    pricelistContextMenu = new QMenu("Pricelist", this);
 
 
     QObject::connect(this, SIGNAL(databaseLoaded()), this, SLOT(on_loaded_Database()));
 
+
+    diaShowCarts = new DialogShowCarts(this);
+
+    QObject::connect(diaShowCarts, SIGNAL(cartSelected(QString)), this, SLOT(on_reopen_Cart(QString)));
 
 }
 
@@ -136,7 +147,6 @@ void MainWindow::on_actionOpen_Database_triggered()
 {
 
 
-
     if (osDatabase->isOpen()) {
         if (this->closeDatabase() == false) {
             return;
@@ -163,6 +173,9 @@ void MainWindow::on_actionOpen_Database_triggered()
               genericHelper::addRecentFiles(fileName,maxRecentFiles);
           }
       }
+
+
+
 }
 
 
@@ -337,6 +350,21 @@ void MainWindow::on_open_Cart(QString customerid)
     if (osDatabase->isOpen()) {
        if (osDatabase->createEmptyShoppingCart(customerid.toInt(),_timestmap.replace(":","").replace(" ","").replace("-","")) == true ) {
         this->modelCart->setTable("cart_"+customerid+"_"+_timestmap);
+
+        this->modelCart->setHeaderData(1, Qt::Horizontal, QObject::tr("Product Id"));
+        this->modelCart->setHeaderData(2, Qt::Horizontal, QObject::tr("Article Name"));
+        this->modelCart->setHeaderData(3, Qt::Horizontal, QObject::tr("Units"));
+        this->modelCart->setHeaderData(4, Qt::Horizontal, QObject::tr("Packages"));
+        this->modelCart->setHeaderData(5, Qt::Horizontal, QObject::tr("Price/Unit"));
+        this->modelCart->setHeaderData(6, Qt::Horizontal, QObject::tr("Price/Package"));
+        this->modelCart->setHeaderData(7, Qt::Horizontal, QObject::tr("Currency"));
+        this->modelCart->setHeaderData(8, Qt::Horizontal, QObject::tr("Delivery Time"));
+        this->modelCart->setHeaderData(9, Qt::Horizontal, QObject::tr("Training"));
+        this->modelCart->setHeaderData(10, Qt::Horizontal, QObject::tr("Trial"));
+
+
+
+
         this->modelCart->select();
         this->cart_widget->setModel(modelCart);
 
@@ -347,6 +375,92 @@ void MainWindow::on_open_Cart(QString customerid)
     //this->modelCustomer->select();
 
     this->ui->tabWidget->setCurrentIndex(tab_index_cart);
+
+}
+
+void MainWindow::on_reopen_Cart(QString cartname)
+{
+    cart_widget = new CartWidget(this->ui->tabWidget);
+
+    if ( cartname.split("_").length() >= 2) {
+        currentCartTimestamp = cartname.split("_")[2];
+    }
+
+    if (this->ui->tabWidget->count() <= 2) {
+
+        this->ui->tabWidget->addTab(cart_widget,tr("Cart"));
+
+
+
+    }
+
+
+   cart_widget->setCustomerId(currentCartCustomerId);
+   cart_widget->setCustomerName(currentCartCustomerName);
+   cart_widget->setDate(currentCartTimestamp);
+
+    if (osDatabase->isOpen()) {
+
+        this->modelCart->setTable(cartname);
+
+        this->modelCart->setHeaderData(1, Qt::Horizontal, QObject::tr("Product Id"));
+        this->modelCart->setHeaderData(2, Qt::Horizontal, QObject::tr("Article Name"));
+        this->modelCart->setHeaderData(3, Qt::Horizontal, QObject::tr("Units"));
+        this->modelCart->setHeaderData(4, Qt::Horizontal, QObject::tr("Packages"));
+        this->modelCart->setHeaderData(5, Qt::Horizontal, QObject::tr("Price/Unit"));
+        this->modelCart->setHeaderData(6, Qt::Horizontal, QObject::tr("Price/Package"));
+        this->modelCart->setHeaderData(7, Qt::Horizontal, QObject::tr("Currency"));
+        this->modelCart->setHeaderData(8, Qt::Horizontal, QObject::tr("Delivery Time"));
+        this->modelCart->setHeaderData(9, Qt::Horizontal, QObject::tr("Training"));
+        this->modelCart->setHeaderData(10, Qt::Horizontal, QObject::tr("Trial"));
+
+
+
+
+        this->modelCart->select();
+        this->cart_widget->setModel(modelCart);
+
+
+    }
+
+
+
+    this->ui->tabWidget->setCurrentIndex(tab_index_cart);
+}
+
+void MainWindow::on_show_Carts(QString customerid)
+{
+    qDebug() << "on_show_Carts" << customerid;
+
+    diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
+
+    currentCartCustomerId = customerid;
+    currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();
+
+
+    if (diaShowCarts->getDialogShown() == true)
+    {
+        diaShowCarts->close();
+
+        diaShowCarts->show();
+
+    } else {
+
+
+        diaShowCarts->show();
+        diaShowCarts->setDialogShown();
+    }
+
+
+}
+
+void MainWindow::on_add_Cart(QString productid)
+{
+    qDebug() << "on_add_Cart " << this->modelCart->tableName();
+
+
+    osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
+    this->modelCart->select();
 
 }
 
@@ -398,7 +512,6 @@ void MainWindow::on_loaded_Database()
 
 
 
-
     this->ui->tableViewPricelist->setColumnHidden(0,true);
 
 
@@ -444,7 +557,6 @@ void MainWindow::on_loaded_Database()
 
 
 
-
 }
 
 void MainWindow::on_open_MailClient(QString mailaddress)
@@ -482,13 +594,24 @@ void MainWindow::on_actionRevert_Changes_triggered()
 void MainWindow::on_actionNew_Entry_Pricelist_triggered()
 {
 
-    if (this->ui->tabWidget->currentIndex() == 0) {
-        modelPricelist->insertRecord(modelPricelist->rowCount(),modelPricelist->record());
-        ui->tableViewPricelist->scrollToBottom();
-    } else {
-        modelCustomer->insertRecord(modelCustomer->rowCount(),modelCustomer->record());
-        ui->tableViewCustomer->scrollToBottom();
+
+
+    switch( this->ui->tabWidget->currentIndex() )
+    {
+        case 0:
+            modelPricelist->insertRecord(modelPricelist->rowCount(),modelPricelist->record());
+            ui->tableViewPricelist->scrollToBottom();
+            break ;
+        case 1:
+            modelCustomer->insertRecord(modelCustomer->rowCount(),modelCustomer->record());
+            ui->tableViewCustomer->scrollToBottom();
+            break ;
+        case 2:
+            QMessageBox::information(this, genericHelper::getAppName(), tr("Add new products by selecting them in the pricelist tab."));
+            this->ui->tabWidget->setCurrentIndex(0);
+            break ;
     }
+
 }
 
 void MainWindow::on_actionFill_with_Example_Data_triggered()
@@ -524,7 +647,7 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
     } else {
 
 
-        if (this->ui->tabWidget->count() <= 2) {
+        if (this->ui->tabWidget->count() == 2) {
 
         cartContextMenu->addAction(new_cart);
 
@@ -533,6 +656,12 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
         cartContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
 
         }
+
+        cartContextMenu->addAction(show_carts);
+
+        signalMapperShowCart->setMapping(show_carts, QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+
+        cartContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
 
     }
 
@@ -550,4 +679,21 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
     if (index == 2) {
         this->ui->tabWidget->removeTab(tab_index_cart);
     }
+}
+
+void MainWindow::on_tableViewPricelist_customContextMenuRequested(const QPoint &pos)
+{
+    if (this->ui->tabWidget->count() > 2) {
+
+        pricelistContextMenu->addAction(add_to_cart);
+
+        signalMapperPricelist->setMapping(add_to_cart, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+
+        pricelistContextMenu->popup(this->ui->tableViewPricelist->viewport()->mapToGlobal(pos));
+    }
+}
+
+void MainWindow::on_actionExportODF_triggered()
+{
+    qDebug() << "export to word";
 }

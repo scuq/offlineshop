@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QSignalMapper>
 #include <QSqlRelationalTableModel>
+#include <QSqlQueryModel>
 #include <QSqlRecord>
 #include "advqsortfilterproxymodel.h"
 #include <myintdelegate.h>
@@ -17,6 +18,7 @@
 #include <mycurrencycombodelegate.h>
 #include <myemaillineeditdelegate.h>
 #include "cartwidget.h"
+#include "dialogshowcarts.h"
 
 #include "osdb.h"
 
@@ -45,6 +47,12 @@ private slots:
 
     void on_open_Cart(QString customerid);
 
+    void on_reopen_Cart(QString cartname);
+
+    void on_show_Carts(QString customerid);
+
+    void on_add_Cart(QString productid);
+
     void on_loaded_Database();
 
     void on_open_MailClient(QString mailaddress);
@@ -64,6 +72,10 @@ private slots:
     void on_actionDelete_Entry_triggered();
 
     void on_tabWidget_tabCloseRequested(int index);
+
+    void on_tableViewPricelist_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionExportODF_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -100,10 +112,22 @@ private:
     QSignalMapper *signalMapperEmailAddress;
 
     QAction *new_cart;
+    QAction *show_carts;
     QMenu *cartContextMenu;
     QSignalMapper *signalMapperCart;
+    QSignalMapper *signalMapperShowCart;
+
+    DialogShowCarts *diaShowCarts;
+
+    QAction *add_to_cart;
+    QMenu *pricelistContextMenu;
+    QSignalMapper *signalMapperPricelist;
 
     CartWidget *cart_widget;
+
+    QString currentCartCustomerId;
+    QString currentCartCustomerName;
+    QString currentCartTimestamp;
 
     void toggleInputEnabled(bool toggle);
     void fillRecentFileHistory();

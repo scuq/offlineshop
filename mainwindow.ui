@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <property name="tabsClosable">
        <bool>true</bool>
@@ -34,6 +34,9 @@
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QTableView" name="tableViewPricelist">
+          <property name="contextMenuPolicy">
+           <enum>Qt::CustomContextMenu</enum>
+          </property>
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
@@ -132,6 +135,7 @@
    <addaction name="actionRevert_Changes"/>
    <addaction name="actionNew_Entry_Pricelist"/>
    <addaction name="actionDelete_Entry"/>
+   <addaction name="actionExportODF"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew_Database">
@@ -205,6 +209,15 @@
    </property>
    <property name="text">
     <string>Delete Entry</string>
+   </property>
+  </action>
+  <action name="actionExportODF">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/16x16/format-indent-more.png</normaloff>:/icons/16x16/format-indent-more.png</iconset>
+   </property>
+   <property name="text">
+    <string>ExportODF</string>
    </property>
   </action>
  </widget>
