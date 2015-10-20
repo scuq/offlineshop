@@ -1,5 +1,6 @@
 #include "cartwidget.h"
 #include "ui_cartwidget.h"
+#include "QDebug";
 
 CartWidget::CartWidget(QWidget *parent) :
     QWidget(parent),
@@ -38,4 +39,20 @@ void CartWidget::setModel(QSqlRelationalTableModel *model)
     this->ui->tableViewCart->setModel(model);
     this->ui->tableViewCart->resizeColumnsToContents();
     this->ui->tableViewCart->setColumnHidden(0,true);
+}
+
+void CartWidget::on_lineEditCartName_textEdited(const QString &arg1)
+{
+
+}
+
+void CartWidget::on_lineEditCartName_returnPressed()
+{
+
+
+}
+
+void CartWidget::on_lineEditCartName_editingFinished()
+{
+     emit onCartNameChanged(this->ui->lineEditCartName->text());
 }

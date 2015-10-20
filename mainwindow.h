@@ -12,6 +12,7 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlQueryModel>
 #include <QSqlRecord>
+#include <QDesktopServices>
 #include "advqsortfilterproxymodel.h"
 #include <myintdelegate.h>
 #include <myfloatdelegate.h>
@@ -19,6 +20,7 @@
 #include <myemaillineeditdelegate.h>
 #include "cartwidget.h"
 #include "dialogshowcarts.h"
+#include "dialogoptions.h"
 
 #include "osdb.h"
 
@@ -49,6 +51,8 @@ private slots:
 
     void on_reopen_Cart(QString cartname);
 
+    void on_changed_CartName(QString newcartname);
+
     void on_show_Carts(QString customerid);
 
     void on_add_Cart(QString productid);
@@ -76,6 +80,8 @@ private slots:
     void on_tableViewPricelist_customContextMenuRequested(const QPoint &pos);
 
     void on_actionExportODF_triggered();
+
+    void on_actionOptions_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -118,6 +124,7 @@ private:
     QSignalMapper *signalMapperShowCart;
 
     DialogShowCarts *diaShowCarts;
+    DialogOptions *diaOptions;
 
     QAction *add_to_cart;
     QMenu *pricelistContextMenu;
@@ -125,9 +132,7 @@ private:
 
     CartWidget *cart_widget;
 
-    QString currentCartCustomerId;
-    QString currentCartCustomerName;
-    QString currentCartTimestamp;
+    QHash<QString,QString> currentCartInfos;
 
     void toggleInputEnabled(bool toggle);
     void fillRecentFileHistory();

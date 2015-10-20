@@ -31,6 +31,7 @@ void DialogShowCarts::setCarts(QStringList carts)
 {
     this->ui->listWidget->clear();
     this->ui->listWidget->addItems(carts);
+
 }
 
 void DialogShowCarts::on_listWidget_itemDoubleClicked(QListWidgetItem *item)

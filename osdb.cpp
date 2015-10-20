@@ -12,6 +12,7 @@ bool osDb::createAllTables()
 
     ret = this->createTablePricelist();
     this->createTableCustomer();
+    this->createTableCartlist();
 
 
     lastErrorMsg = db.lastError().text();
@@ -667,12 +668,11 @@ bool osDb::createTableCustomer()
 
 }
 
-bool osDb::createEmptyShoppingCart(int customerid, QString date)
+bool osDb::createTableCartlist()
 {
-    QString table = "cart_"+QString::number(customerid)+"_"+date;
+    QString table = "cartlist";
 
     genericHelper::log("checking table: "+table);
-
 
 
     bool ret = false;
@@ -683,6 +683,36 @@ bool osDb::createEmptyShoppingCart(int customerid, QString date)
 
          ret = query.exec("CREATE TABLE IF NOT EXISTS "+table+" "
                                  "(id INTEGER PRIMARY KEY, "
+                            "cartname VARCHAR, "
+                            "carttablename VARCHAR, "
+                            "customer_name VARCHAR NOT NULL, "
+                            "customerid BIGINT, "
+                            "pretty_date VARCHAR, "
+                            "date VARCHAR "
+                                 ")" );
+
+
+
+    }
+
+    return ret;
+
+}
+
+bool osDb::createEmptyShoppingCart(int customerid, QString customername, QString prettydate, QString date)
+{
+    QString table = "cart_"+QString::number(customerid)+"_"+date;
+
+    genericHelper::log("checking table: "+table);
+
+    bool ret = false;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+         QSqlQuery query(QSqlDatabase::database(genericHelper::getAppName()));
+
+         ret = query.exec("CREATE TABLE IF NOT EXISTS "+table+" "
+                            "(id INTEGER PRIMARY KEY, "
                             "productid BIGINT UNIQUE, "
                             "article_name VARCHAR NOT NULL, "
                             "units INT, "
@@ -697,12 +727,140 @@ bool osDb::createEmptyShoppingCart(int customerid, QString date)
                                  ")" );
 
 
+         if (ret == true) {
+
+             query.prepare( "INSERT INTO cartlist "
+                            "('cartname', 'carttablename', 'customer_name', 'customerid', 'pretty_date', 'date') "
+                            "VALUES (?, ?, ?, ?, ?, ?);");
+
+             QVariantList cartname;
+             QVariantList carttablename;
+             QVariantList customer_name;
+             QVariantList customerids;
+             QVariantList pretty_date;
+             QVariantList dates;
+
+             cartname << "";
+             carttablename << "cart_"+QString::number(customerid)+"_"+date;
+             customer_name << customername;
+             customerids << customerid;
+             pretty_date << prettydate;
+             dates << date;
+
+             query.addBindValue(cartname);
+             query.addBindValue(carttablename);
+             query.addBindValue(customer_name);
+             query.addBindValue(customerids);
+             query.addBindValue(pretty_date);
+             query.addBindValue(dates);
 
 
+             if (!query.execBatch()) {
+                 ret = false;
+
+                 genericHelper::log("db error: "+query.lastError().text());
+                 genericHelper::log("db query: "+query.executedQuery());
+
+                 genericHelper::log("db trying to drop table: "+table);
+                 query.exec("DROP TABLE "+table+"");
+
+             } else {
+
+                 ret = true;
+
+             }
+
+         }
 
 
 
     }
 
     return ret;
+}
+
+QHash<QString,QString> osDb::getCartInfos(QString carttablename)
+{
+    bool ret = false;
+
+    QHash<QString,QString> cartinfos;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+        QSqlQuery query(QSqlDatabase::database(genericHelper::getAppName()));
+
+        query.prepare("SELECT * FROM cartlist WHERE carttablename=\'"+carttablename+"\' LIMIT 1 ;");
+
+        if (!query.exec()) {
+            ret = false;
+            genericHelper::log("db error: "+query.lastError().text());
+            genericHelper::log("db query: "+query.executedQuery());
+
+        } else {
+            ret = true;
+
+            query.next();
+
+            QSqlRecord rec = query.record();
+
+
+
+            for (int i=0; i<rec.count(); i++) {
+              if (rec.fieldName(i) == "cartname") {
+                   cartinfos["cartname"] = rec.value(i).toString();
+                   continue;
+              }
+              if (rec.fieldName(i) == "carttablename") {
+                   cartinfos["carttablename"] = rec.value(i).toString();
+                   continue;
+              }
+              if (rec.fieldName(i) == "customer_name") {
+                   cartinfos["customer_name"] = rec.value(i).toString();
+                   continue;
+              }
+              if (rec.fieldName(i) == "customerid") {
+                   cartinfos["customerid"] = rec.value(i).toString();
+                   continue;
+              }
+              if (rec.fieldName(i) == "pretty_date") {
+                   cartinfos["pretty_date"] = rec.value(i).toString();
+                   continue;
+              }
+              if (rec.fieldName(i) == "date") {
+                   cartinfos["date"] = rec.value(i).toString();
+                   continue;
+              }
+
+            }
+
+        }
+
+    }
+    return cartinfos;
+}
+
+bool osDb::updateCartName(QString carttablename, QString cartname)
+{
+    bool ret = false;
+
+    QHash<QString,QString> cartinfos;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+        QSqlQuery query(QSqlDatabase::database(genericHelper::getAppName()));
+
+        query.prepare("UPDATE cartlist SET cartname=\'"+cartname+"\' WHERE carttablename =\'"+carttablename+"\';");
+
+        if (!query.exec()) {
+            ret = false;
+            genericHelper::log("db error: "+query.lastError().text());
+            genericHelper::log("db query: "+query.executedQuery());
+
+        } else {
+            ret = true;
+        }
+    }
+
+    return ret;
+
 }

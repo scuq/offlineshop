@@ -21,9 +21,18 @@ public:
     void setDate(QString date);
     void setModel(QSqlRelationalTableModel *model);
 
+private slots:
+    void on_lineEditCartName_textEdited(const QString &arg1);
+
+    void on_lineEditCartName_returnPressed();
+
+    void on_lineEditCartName_editingFinished();
+
 private:
     Ui::CartWidget *ui;
 
+signals:
+    void onCartNameChanged(QString);
 };
 
 #endif // CARTWIDGET_H

@@ -108,6 +108,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(diaShowCarts, SIGNAL(cartSelected(QString)), this, SLOT(on_reopen_Cart(QString)));
 
+    diaOptions = new DialogOptions(this);
+
 }
 
 MainWindow::~MainWindow()
@@ -130,7 +132,7 @@ void MainWindow::on_actionNew_Database_triggered()
     if (!fileName.isEmpty()) {
         bool ret = osDatabase->open(fileName);
         if( ret == false) {
-            QMessageBox::warning(this, tr("Costs"),
+            QMessageBox::warning(this, genericHelper::getAppName(),
                                  tr("Database cannot be created: %1")
                                  .arg(fileName));
         } else {
@@ -333,6 +335,8 @@ void MainWindow::on_open_Cart(QString customerid)
 
     cart_widget = new CartWidget(this->ui->tabWidget);
 
+    QObject::connect(cart_widget, SIGNAL(onCartNameChanged(QString)), this, SLOT(on_changed_CartName(QString)));
+
     if (this->ui->tabWidget->count() <= 2) {
 
         this->ui->tabWidget->addTab(cart_widget,tr("Cart"));
@@ -342,13 +346,15 @@ void MainWindow::on_open_Cart(QString customerid)
     }
 
     QString _timestmap = genericHelper::getPrettyTimestamp();
+    QString _prettytimestmap = genericHelper::getPrettyTimestamp();
 
     cart_widget->setCustomerId(customerid);
     cart_widget->setCustomerName(this->proxymodelCustomer->getColData(1,customerid,2).toString());
     cart_widget->setDate(_timestmap);
 
     if (osDatabase->isOpen()) {
-       if (osDatabase->createEmptyShoppingCart(customerid.toInt(),_timestmap.replace(":","").replace(" ","").replace("-","")) == true ) {
+
+       if (osDatabase->createEmptyShoppingCart(customerid.toInt(), this->proxymodelCustomer->getColData(1,customerid,2).toString(), _prettytimestmap, _timestmap.replace(":","").replace(" ","").replace("-","")) == true ) {
         this->modelCart->setTable("cart_"+customerid+"_"+_timestmap);
 
         this->modelCart->setHeaderData(1, Qt::Horizontal, QObject::tr("Product Id"));
@@ -382,22 +388,18 @@ void MainWindow::on_reopen_Cart(QString cartname)
 {
     cart_widget = new CartWidget(this->ui->tabWidget);
 
-    if ( cartname.split("_").length() >= 2) {
-        currentCartTimestamp = cartname.split("_")[2];
-    }
+    QObject::connect(cart_widget, SIGNAL(onCartNameChanged(QString)), this, SLOT(on_changed_CartName(QString)));
+
+    this->currentCartInfos = osDatabase->getCartInfos(cartname);
 
     if (this->ui->tabWidget->count() <= 2) {
-
         this->ui->tabWidget->addTab(cart_widget,tr("Cart"));
-
-
-
     }
 
-
-   cart_widget->setCustomerId(currentCartCustomerId);
-   cart_widget->setCustomerName(currentCartCustomerName);
-   cart_widget->setDate(currentCartTimestamp);
+   cart_widget->setCustomerId(this->currentCartInfos.value("customerid"));
+   cart_widget->setCustomerName(this->currentCartInfos.value("customer_name"));
+   cart_widget->setDate(this->currentCartInfos.value("pretty_date"));
+   cart_widget->setCartName(this->currentCartInfos.value("cartname"));
 
     if (osDatabase->isOpen()) {
 
@@ -428,14 +430,22 @@ void MainWindow::on_reopen_Cart(QString cartname)
     this->ui->tabWidget->setCurrentIndex(tab_index_cart);
 }
 
+void MainWindow::on_changed_CartName(QString newcartname)
+{
+    qDebug() << "on_changed_CartName";
+    //osDatabase->updateCartName(this->curr)
+    osDatabase->updateCartName(this->currentCartInfos.value("carttablename"),newcartname);
+}
+
 void MainWindow::on_show_Carts(QString customerid)
 {
     qDebug() << "on_show_Carts" << customerid;
 
     diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
 
-    currentCartCustomerId = customerid;
-    currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();
+    //currentCartCustomerId = customerid;
+    //currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();
+
 
 
     if (diaShowCarts->getDialogShown() == true)
@@ -696,4 +706,50 @@ void MainWindow::on_tableViewPricelist_customContextMenuRequested(const QPoint &
 void MainWindow::on_actionExportODF_triggered()
 {
     qDebug() << "export to word";
+
+    QString _template;
+
+    QFile file(genericHelper::getTemplateFile());
+    if (file.exists()) {
+
+        genericHelper::unzipWithAddon7Zip();
+
+    } else {
+        QMessageBox::warning(this, genericHelper::getAppName(), tr("Report template file not found: %1").arg(genericHelper::getTemplateFile()));
+    }
+
+    bool ret = false;
+
+    QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
+    QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0], filters, &defaultFilter);
+      if (!fileName.isEmpty()) {
+
+          QFile wfile(fileName);
+          wfile.open(QIODevice::WriteOnly);
+          QDataStream out(&wfile);
+          out << _template;
+      }
+
+
+
+
+
+}
+
+void MainWindow::on_actionOptions_triggered()
+{
+    if (diaOptions->getDialogShown() == true)
+    {
+        diaOptions->close();
+
+        diaOptions->show();
+
+    } else {
+
+
+        diaOptions->show();
+        diaOptions->setDialogShown();
+    }
+
 }

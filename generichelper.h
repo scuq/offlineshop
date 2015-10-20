@@ -47,6 +47,16 @@ public:
      static int getGuiPollInterval();
      static bool setGuiPollInterval(int interval);
      static bool isValidEmailAddress(QString address);
+     static void unzipWithAddon7Zip();
+
+     static QString getCompanyName();
+     static void setCompanyName(QString companyname);
+
+     static QString getReportTitle();
+     static void setReportTitle(QString reporttitle);
+
+     static QString getTemplateFile();
+     static void setTemplateFile(QString templatefile);
 
      static QString getLastErrorMsg();
 

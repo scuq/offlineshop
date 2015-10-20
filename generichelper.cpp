@@ -68,6 +68,93 @@ bool genericHelper::isValidEmailAddress(QString address)
     }
 }
 
+void genericHelper::unzipWithAddon7Zip()
+{
+    QString addon7z = "";
+
+
+    addon7z = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
+            "3rdparty-addons" + QDir::separator() +
+            "7zip" + QDir::separator() + "7z.exe";
+
+    QFile addon7zFile( addon7z );
+
+    if( addon7zFile.exists() )
+
+    {
+        qDebug() << "7z found.";
+    }
+}
+
+QString genericHelper::getCompanyName()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _retstr = "";
+
+    if (settings.value("companyname", "").toString().length() > 1) {
+        _retstr = settings.value("companyname", "").toString();
+
+    } else {
+        _retstr = SETTINGS_COMPANY;
+    }
+
+    return _retstr;
+}
+
+void genericHelper::setCompanyName(QString companyname)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("companyname", companyname);
+    settings.sync();
+}
+
+QString genericHelper::getReportTitle()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _retstr = "";
+
+    if (settings.value("reporttitle", "").toString().length() > 1) {
+        _retstr = settings.value("reporttitle", "").toString();
+
+    } else {
+        _retstr = "Example Title";
+    }
+
+    return _retstr;
+}
+
+void genericHelper::setReportTitle(QString reporttitle)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("reporttitle", reporttitle);
+    settings.sync();
+}
+
+QString genericHelper::getTemplateFile()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _retstr = "";
+
+    if (settings.value("templatefile", "").toString().length() > 1) {
+        _retstr = settings.value("templatefile", "").toString();
+
+    } else {
+        _retstr = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() + "report_template.docx";
+    }
+
+    return _retstr;
+}
+
+void genericHelper::setTemplateFile(QString templatefile)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("templatefile", templatefile);
+    settings.sync();
+}
+
 QString genericHelper::getAppDir(){
 
     QString _appDir = QDir::homePath() + QDir::separator () + genericHelper::getAppName();
