@@ -19,7 +19,7 @@
 #include <QStringList>
 #include <windows.h>
 #include <QDebug>
-
+#include <QThread>
 
 class genericHelper : public QObject
 {
@@ -47,7 +47,11 @@ public:
      static int getGuiPollInterval();
      static bool setGuiPollInterval(int interval);
      static bool isValidEmailAddress(QString address);
-     static void unzipWithAddon7Zip();
+     static QString unzipDocxWithAddon7Zip(QString docxfile);
+     static void replaceVarInDocx(QString tempdir, QHash<QString,QString> replacmentVars);
+     static QHash<QString,QString> getDocxReplacmentVariables();
+     static void setDocxReplacmentVariables(QHash<QString,QString> replacmentVars);
+
 
      static QString getCompanyName();
      static void setCompanyName(QString companyname);

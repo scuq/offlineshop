@@ -29,6 +29,34 @@ bool DialogOptions::getDialogShown()
 
 void DialogOptions::refreshUiData()
 {
+    this->ui->tableWidgetReplacmentVars->clear();
+    QHash<QString,QString> replacementvars;
+
+    replacementvars = genericHelper::getDocxReplacmentVariables();
+
+
+
+    QListIterator<QString> itrvars (replacementvars.keys());
+
+    while (itrvars.hasNext()) {
+
+        QString current = itrvars.next();
+
+
+
+        QTableWidgetItem* newItemR = new QTableWidgetItem();
+        QTableWidgetItem* newItemW = new QTableWidgetItem();
+
+        newItemR->setText("current");
+        newItemW->setText(replacementvars[current]);
+
+        this->ui->tableWidgetReplacmentVars->setItem(this->ui->tableWidgetReplacmentVars->rowCount(),0, newItemR);
+       // this->ui->tableWidgetReplacmentVars->setItem(this->ui->tableWidgetReplacmentVars->rowCount(),1, newItemW);
+
+        this->ui->tableWidgetReplacmentVars->insertRow(this->ui->tableWidgetReplacmentVars->rowCount());
+
+    }
+
 
 }
 
@@ -57,4 +85,19 @@ void DialogOptions::on_pushButtonTemplateFileSelect_clicked()
 void DialogOptions::on_pushButtonOk_clicked()
 {
 
+
+    QHash<QString,QString> replacementvars;
+
+    for (int i=0; i<this->ui->tableWidgetReplacmentVars->rowCount(); ++i)
+    {
+        replacementvars[this->ui->tableWidgetReplacmentVars->item(i, 0)->text()]=this->ui->tableWidgetReplacmentVars->item(i, 1)->text();
+    }
+
+    genericHelper::setDocxReplacmentVariables(replacementvars);
+
+}
+
+void DialogOptions::on_pushButtonAdd_clicked()
+{
+    this->ui->tableWidgetReplacmentVars->insertRow(this->ui->tableWidgetReplacmentVars->rowCount());
 }

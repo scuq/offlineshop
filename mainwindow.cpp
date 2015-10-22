@@ -708,11 +708,16 @@ void MainWindow::on_actionExportODF_triggered()
     qDebug() << "export to word";
 
     QString _template;
+    QString extractedDocxDir;
 
     QFile file(genericHelper::getTemplateFile());
     if (file.exists()) {
 
-        genericHelper::unzipWithAddon7Zip();
+        extractedDocxDir = genericHelper::unzipDocxWithAddon7Zip(genericHelper::getTemplateFile());
+        qDebug() << genericHelper::getDocxReplacmentVariables();
+        //genericHelper::replaceVarInDocx(extractedDocxDir);
+
+
 
     } else {
         QMessageBox::warning(this, genericHelper::getAppName(), tr("Report template file not found: %1").arg(genericHelper::getTemplateFile()));

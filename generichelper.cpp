@@ -68,22 +68,150 @@ bool genericHelper::isValidEmailAddress(QString address)
     }
 }
 
-void genericHelper::unzipWithAddon7Zip()
+QString genericHelper::unzipDocxWithAddon7Zip(QString docxfile)
 {
     QString addon7z = "";
+    QStringList args;
 
+    QString extractedDocxDir = "";
 
     addon7z = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
             "3rdparty-addons" + QDir::separator() +
             "7zip" + QDir::separator() + "7z.exe";
 
+
+    QFile origDocxfile( docxfile );
+
+    QFileInfo origDocxfileInfo(docxfile);
+
     QFile addon7zFile( addon7z );
 
-    if( addon7zFile.exists() )
+    QDir tempExtractDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] + QDir::separator() + origDocxfileInfo.baseName() + "_" + genericHelper::getTimestamp());
 
-    {
-        qDebug() << "7z found.";
+    extractedDocxDir = QDir::toNativeSeparators(tempExtractDir.path());
+
+    if (tempExtractDir.exists()) {
+         qDebug() << "removing dir "+tempExtractDir.path();
+        tempExtractDir.removeRecursively();
+        qDebug() << "creating dir "+tempExtractDir.path();
+        tempExtractDir.mkpath(".");
+    } else {
+        qDebug() << "creating dir "+tempExtractDir.path();
+        tempExtractDir.mkpath(".");
     }
+
+    if( (addon7zFile.exists()) &&  origDocxfile.exists())
+    {
+
+        args << "x";
+        args << QDir::toNativeSeparators(docxfile);
+        args << "-tzip";
+        args << "-yo" + extractedDocxDir;
+
+        qDebug() << "7z found.";
+        qDebug() << "docx template found.";
+
+        QProcess *process = new QProcess(qApp);
+
+
+        qDebug() << addon7z << args;
+        process->start(addon7z, args);
+        process->waitForFinished(20000);
+
+
+    }
+
+    return extractedDocxDir;
+}
+
+void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> replacmentVars)
+{
+
+    qDebug() << "replaceVarInDocx";
+    qDebug() << replacmentVars;
+    QFile origDocxfile( tempdir + QDir::separator() + "word" + QDir::separator() + "document.xml" );
+
+    qDebug() << tempdir + QDir::separator() + "word" + QDir::separator() + "document.xml";
+
+    QString orgContent="";
+
+    if (origDocxfile.exists()) {
+
+        if (origDocxfile.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QTextStream in(&origDocxfile);
+
+            while(!in.atEnd()) {
+                orgContent += in.readLine();
+            }
+
+
+
+              origDocxfile.close();
+        }
+
+        orgContent.replace("$TITLE$","New Title");
+
+        QThread::sleep(2);
+
+        if (origDocxfile.open(QIODevice::ReadWrite | QIODevice::Text))
+        {
+
+              QTextStream out(&origDocxfile);
+              out << orgContent;
+              origDocxfile.close();
+        }
+
+
+    }
+
+}
+
+QHash<QString, QString> genericHelper::getDocxReplacmentVariables()
+{
+      QHash<QString,QString> replacementvars;
+
+
+
+      QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+      QListIterator<QString> itrsettings (settings.childKeys());
+
+      while (itrsettings.hasNext()) {
+
+          QString current = itrsettings.next();
+
+          if (current.contains("docx_rv_")) {
+              current.replace("docx_rv_","");
+              replacementvars[current]=settings.value(current).toString();
+         }
+      }
+
+
+
+      return replacementvars;
+
+}
+
+void genericHelper::setDocxReplacmentVariables(QHash<QString, QString> replacmentVars)
+{
+
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QListIterator<QString> itrvars (replacmentVars.keys());
+
+    while (itrvars.hasNext()) {
+        QString current = itrvars.next();
+
+        settings.setValue("docx_rv_"+current, replacmentVars[current]);
+    }
+
+
+
+    settings.sync();
+
+
+
 }
 
 QString genericHelper::getCompanyName()

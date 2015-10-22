@@ -26,6 +26,8 @@ private slots:
 
     void on_pushButtonOk_clicked();
 
+    void on_pushButtonAdd_clicked();
+
 private:
     Ui::DialogOptions *ui;
     bool dialogShown;
