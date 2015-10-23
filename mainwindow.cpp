@@ -709,13 +709,16 @@ void MainWindow::on_actionExportODF_triggered()
 
     QString _template;
     QString extractedDocxDir;
+    QString newDocxFile;
 
     QFile file(genericHelper::getTemplateFile());
     if (file.exists()) {
 
         extractedDocxDir = genericHelper::unzipDocxWithAddon7Zip(genericHelper::getTemplateFile());
-        qDebug() << genericHelper::getDocxReplacmentVariables();
-        //genericHelper::replaceVarInDocx(extractedDocxDir);
+
+        genericHelper::replaceVarInDocx(extractedDocxDir,genericHelper::getDocxReplacmentVariables());
+
+        newDocxFile = genericHelper::zipTempDirToDocxWithAddon7Zip(extractedDocxDir);
 
 
 
@@ -730,10 +733,8 @@ void MainWindow::on_actionExportODF_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0], filters, &defaultFilter);
       if (!fileName.isEmpty()) {
 
-          QFile wfile(fileName);
-          wfile.open(QIODevice::WriteOnly);
-          QDataStream out(&wfile);
-          out << _template;
+          QFile::copy(QDir::toNativeSeparators(newDocxFile),QDir::toNativeSeparators(fileName));
+
       }
 
 

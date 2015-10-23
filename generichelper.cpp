@@ -124,6 +124,60 @@ QString genericHelper::unzipDocxWithAddon7Zip(QString docxfile)
     return extractedDocxDir;
 }
 
+QString genericHelper::zipTempDirToDocxWithAddon7Zip(QString tempdir)
+{
+    QString addon7z = "";
+    QStringList args;
+
+    QString newDocxFileStr = QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] + QDir::separator() + "_" + genericHelper::getTimestamp()+".docx";
+
+
+
+
+    QDir tempExtractDir(tempdir);
+
+
+    addon7z = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
+            "3rdparty-addons" + QDir::separator() +
+            "7zip" + QDir::separator() + "7z.exe";
+
+
+
+
+
+
+    QFile addon7zFile( addon7z );
+
+
+
+    if( (addon7zFile.exists()) &&  tempExtractDir.exists())
+    {
+
+        args << "a";
+        args << QDir::toNativeSeparators(newDocxFileStr);
+        args << "-tzip";
+        args << "-y";
+        args << QDir::toNativeSeparators(tempdir+QDir::separator()+"*");
+
+        qDebug() << "7z found.";
+        qDebug() << "docx template found.";
+
+        QProcess *process = new QProcess(qApp);
+
+
+        qDebug() << addon7z << args;
+        process->start(addon7z, args);
+        process->waitForFinished(20000);
+
+
+    }
+
+
+
+
+    return newDocxFileStr;
+}
+
 void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> replacmentVars)
 {
 
@@ -182,8 +236,9 @@ QHash<QString, QString> genericHelper::getDocxReplacmentVariables()
           QString current = itrsettings.next();
 
           if (current.contains("docx_rv_")) {
-              current.replace("docx_rv_","");
-              replacementvars[current]=settings.value(current).toString();
+              QString key = current;
+              key.replace("docx_rv_","");
+              replacementvars[key]=settings.value(current).toString();
          }
       }
 

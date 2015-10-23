@@ -48,9 +48,11 @@ public:
      static bool setGuiPollInterval(int interval);
      static bool isValidEmailAddress(QString address);
      static QString unzipDocxWithAddon7Zip(QString docxfile);
+     static QString zipTempDirToDocxWithAddon7Zip(QString tempdir);
      static void replaceVarInDocx(QString tempdir, QHash<QString,QString> replacmentVars);
      static QHash<QString,QString> getDocxReplacmentVariables();
      static void setDocxReplacmentVariables(QHash<QString,QString> replacmentVars);
+
 
 
      static QString getCompanyName();

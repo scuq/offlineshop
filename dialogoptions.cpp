@@ -17,7 +17,7 @@ DialogOptions::~DialogOptions()
 void DialogOptions::setDialogShown()
 {
     dialogShown = true;
-    this->refreshUiData();
+
 
 }
 
@@ -40,20 +40,22 @@ void DialogOptions::refreshUiData()
 
     while (itrvars.hasNext()) {
 
+
         QString current = itrvars.next();
 
+        int insertRow = this->ui->tableWidgetReplacmentVars->rowCount();
 
+        this->ui->tableWidgetReplacmentVars->insertRow(insertRow);
 
-        QTableWidgetItem* newItemR = new QTableWidgetItem();
-        QTableWidgetItem* newItemW = new QTableWidgetItem();
+        QTableWidgetItem* newItemR = new QTableWidgetItem(current);
+        QTableWidgetItem* newItemW = new QTableWidgetItem(replacementvars[current]);
 
-        newItemR->setText("current");
+        newItemR->setText(current);
+
         newItemW->setText(replacementvars[current]);
 
-        this->ui->tableWidgetReplacmentVars->setItem(this->ui->tableWidgetReplacmentVars->rowCount(),0, newItemR);
-       // this->ui->tableWidgetReplacmentVars->setItem(this->ui->tableWidgetReplacmentVars->rowCount(),1, newItemW);
-
-        this->ui->tableWidgetReplacmentVars->insertRow(this->ui->tableWidgetReplacmentVars->rowCount());
+        this->ui->tableWidgetReplacmentVars->setItem(insertRow,0, newItemR);
+        this->ui->tableWidgetReplacmentVars->setItem(insertRow,1, newItemW);
 
     }
 
@@ -68,15 +70,14 @@ void DialogOptions::on_pushButtonTemplateFileSelect_clicked()
                                                       tr("Microsoft Word 2007/2010/2013 XML (*.docx)"));
       if (!fileName.isEmpty()) {
 
-          //bool ret = osDatabase->open(fileName);
+
 
           if( ret == false) {
               QMessageBox::warning(this, genericHelper::getAppName(), tr("File cannot be opened: %1, Error %2").arg("").arg(""));
           } else {
 
 
-            //  emit databaseLoaded ( );
-              //genericHelper::addRecentFiles(fileName,maxRecentFiles);
+
           }
       }
 
@@ -94,6 +95,8 @@ void DialogOptions::on_pushButtonOk_clicked()
     }
 
     genericHelper::setDocxReplacmentVariables(replacementvars);
+
+    this->hide();
 
 }
 
