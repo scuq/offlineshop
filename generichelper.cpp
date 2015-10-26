@@ -204,7 +204,22 @@ void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> re
               origDocxfile.close();
         }
 
-        orgContent.replace("$TITLE$","New Title");
+
+
+        QListIterator<QString> itrvars (replacmentVars.keys());
+
+        while (itrvars.hasNext()) {
+
+
+            QString current = itrvars.next();
+            orgContent.replace(current,replacmentVars[current]);
+
+
+
+
+        }
+
+
 
         QThread::sleep(2);
 
@@ -241,6 +256,9 @@ QHash<QString, QString> genericHelper::getDocxReplacmentVariables()
               replacementvars[key]=settings.value(current).toString();
          }
       }
+
+      //replacementvars["$DATE$"]=genericHelper::getToday();
+
 
 
 
@@ -453,6 +471,16 @@ void genericHelper::log(QString logstring) {
 QString genericHelper::getTimestamp()
 {
     return QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+}
+
+QString genericHelper::getToday()
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd");
+}
+
+QString genericHelper::getTime()
+{
+    return QDateTime::currentDateTime().toString("HH:mm");
 }
 
 QString genericHelper::getPrettyTimestamp()

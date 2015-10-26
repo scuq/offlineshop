@@ -41,6 +41,28 @@ void CartWidget::setModel(QSqlRelationalTableModel *model)
     this->ui->tableViewCart->setColumnHidden(0,true);
 }
 
+QString CartWidget::getCartName()
+{
+    return this->ui->lineEditCartName->text();
+
+}
+
+QString CartWidget::getCustomerName()
+{
+    return this->ui->lineEditCartCustomer->text();
+}
+
+QString CartWidget::getDate()
+{
+    return this->ui->lineEditCartDate->text();
+}
+
+QString CartWidget::getCustomerId()
+{
+    return this->ui->lineEditCartCustimerId->text();
+}
+
+
 void CartWidget::on_lineEditCartName_textEdited(const QString &arg1)
 {
 

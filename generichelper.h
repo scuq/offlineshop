@@ -41,6 +41,8 @@ public:
      static bool addRecentFiles(QString recentfile, int maxrecent);
      static void log(QString logstring);
      static QString getTimestamp();
+     static QString getToday();
+     static QString getTime();
      static QString getPrettyTimestamp();
      static int getProcessPollInterval();
      static bool setProcessPollInterval(int interval);
@@ -52,6 +54,7 @@ public:
      static void replaceVarInDocx(QString tempdir, QHash<QString,QString> replacmentVars);
      static QHash<QString,QString> getDocxReplacmentVariables();
      static void setDocxReplacmentVariables(QHash<QString,QString> replacmentVars);
+
 
 
 

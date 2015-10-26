@@ -59,6 +59,8 @@ void DialogOptions::refreshUiData()
 
     }
 
+    this->ui->lineEditTemplateFile->setText(genericHelper::getTemplateFile());
+
 
 }
 
@@ -68,17 +70,12 @@ void DialogOptions::on_pushButtonTemplateFileSelect_clicked()
 
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Word XML Template"),"",
                                                       tr("Microsoft Word 2007/2010/2013 XML (*.docx)"));
-      if (!fileName.isEmpty()) {
+      if (fileName.isEmpty()) {
 
-
-
-          if( ret == false) {
               QMessageBox::warning(this, genericHelper::getAppName(), tr("File cannot be opened: %1, Error %2").arg("").arg(""));
-          } else {
 
-
-
-          }
+      } else {
+          this->ui->lineEditTemplateFile->setText(fileName);
       }
 
 }
@@ -95,6 +92,8 @@ void DialogOptions::on_pushButtonOk_clicked()
     }
 
     genericHelper::setDocxReplacmentVariables(replacementvars);
+
+    genericHelper::setTemplateFile(this->ui->lineEditTemplateFile->text());
 
     this->hide();
 

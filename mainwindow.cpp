@@ -707,38 +707,64 @@ void MainWindow::on_actionExportODF_triggered()
 {
     qDebug() << "export to word";
 
-    QString _template;
-    QString extractedDocxDir;
-    QString newDocxFile;
+    if (this->ui->tabWidget->currentIndex() == tab_index_cart) {
 
-    QFile file(genericHelper::getTemplateFile());
-    if (file.exists()) {
+        QString _template;
+        QString extractedDocxDir;
+        QString newDocxFile;
+        QHash<QString,QString> replacementvars;
 
-        extractedDocxDir = genericHelper::unzipDocxWithAddon7Zip(genericHelper::getTemplateFile());
+        QFile file(genericHelper::getTemplateFile());
+        if (file.exists()) {
 
-        genericHelper::replaceVarInDocx(extractedDocxDir,genericHelper::getDocxReplacmentVariables());
+            extractedDocxDir = genericHelper::unzipDocxWithAddon7Zip(genericHelper::getTemplateFile());
 
-        newDocxFile = genericHelper::zipTempDirToDocxWithAddon7Zip(extractedDocxDir);
 
+            replacementvars = genericHelper::getDocxReplacmentVariables();
+
+            replacementvars["$DATE$"] = this->cart_widget->getDate();
+            replacementvars["$CUSTOMER$"] = this->cart_widget->getCustomerName();
+            replacementvars["$CUSTOMERID$"] = this->cart_widget->getCustomerId();
+            replacementvars["$TITLE$"] = this->cart_widget->getCartName();
+
+            int row = this->modelCart->rowCount();
+            int col = this->modelCart->columnCount();
+
+            QStringList products;
+
+            for (int i = 0; i < row ; ++i) {
+
+                products << this->modelCart->data(this->modelCart->index(i, 1), Qt::DisplayRole).toString()+" ("+this->modelCart->data(this->modelCart->index(i, 2), Qt::DisplayRole).toString()+")";
+
+            }
+
+            replacementvars["$PRODUCTS$"] = products.join("\n");
+
+            genericHelper::replaceVarInDocx(extractedDocxDir,replacementvars);
+
+            newDocxFile = genericHelper::zipTempDirToDocxWithAddon7Zip(extractedDocxDir);
+
+
+
+        } else {
+            QMessageBox::warning(this, genericHelper::getAppName(), tr("Report template file not found: %1").arg(genericHelper::getTemplateFile()));
+        }
+
+        bool ret = false;
+
+        QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
+        QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0], filters, &defaultFilter);
+          if (!fileName.isEmpty()) {
+
+              QFile::copy(QDir::toNativeSeparators(newDocxFile),QDir::toNativeSeparators(fileName));
+
+          }
 
 
     } else {
-        QMessageBox::warning(this, genericHelper::getAppName(), tr("Report template file not found: %1").arg(genericHelper::getTemplateFile()));
+        QMessageBox::warning(this, genericHelper::getAppName(), tr("Export not available for %1").arg(this->ui->tabWidget->tabText(this->ui->tabWidget->currentIndex())));
     }
-
-    bool ret = false;
-
-    QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
-    QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0], filters, &defaultFilter);
-      if (!fileName.isEmpty()) {
-
-          QFile::copy(QDir::toNativeSeparators(newDocxFile),QDir::toNativeSeparators(fileName));
-
-      }
-
-
-
 
 
 }
