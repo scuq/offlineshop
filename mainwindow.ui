@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="tabsClosable">
        <bool>true</bool>
@@ -133,9 +133,14 @@
    </attribute>
    <addaction name="actionSave_Database"/>
    <addaction name="separator"/>
-   <addaction name="actionRevert_Changes"/>
    <addaction name="actionNew_Entry_Pricelist"/>
    <addaction name="actionDelete_Entry"/>
+   <addaction name="actionRevert_Changes"/>
+   <addaction name="actionShow_Carts"/>
+   <addaction name="separator"/>
+   <addaction name="actionNew_Cart"/>
+   <addaction name="actionAdd_to_Cart"/>
+   <addaction name="actionRemove_From_Cart"/>
    <addaction name="actionExportODF"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -218,12 +223,51 @@
      <normaloff>:/icons/16x16/format-indent-more.png</normaloff>:/icons/16x16/format-indent-more.png</iconset>
    </property>
    <property name="text">
-    <string>ExportODF</string>
+    <string>Export Word</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Word</string>
    </property>
   </action>
   <action name="actionOptions">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="actionAdd_to_Cart">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/16x16/go-next.png</normaloff>:/icons/16x16/go-next.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add to Cart</string>
+   </property>
+  </action>
+  <action name="actionRemove_From_Cart">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/16x16/go-previous.png</normaloff>:/icons/16x16/go-previous.png</iconset>
+   </property>
+   <property name="text">
+    <string>Remove From Cart</string>
+   </property>
+  </action>
+  <action name="actionShow_Carts">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/16x16/window-new.png</normaloff>:/icons/16x16/window-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Carts</string>
+   </property>
+  </action>
+  <action name="actionNew_Cart">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/16x16/offlineshop.png</normaloff>:/icons/16x16/offlineshop.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Cart</string>
    </property>
   </action>
  </widget>

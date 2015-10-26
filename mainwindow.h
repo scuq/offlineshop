@@ -18,9 +18,11 @@
 #include <myfloatdelegate.h>
 #include <mycurrencycombodelegate.h>
 #include <myemaillineeditdelegate.h>
+#include <myimagedelegate.h>
 #include "cartwidget.h"
 #include "dialogshowcarts.h"
 #include "dialogoptions.h"
+#include "dialogimage.h"
 
 #include "osdb.h"
 
@@ -57,6 +59,8 @@ private slots:
 
     void on_add_Cart(QString productid);
 
+    void on_show_Image(QString productid);
+
     void on_loaded_Database();
 
     void on_open_MailClient(QString mailaddress);
@@ -83,6 +87,20 @@ private slots:
 
     void on_actionOptions_triggered();
 
+
+
+    void on_actionAdd_to_Cart_triggered();
+
+    void on_actionRemove_From_Cart_triggered();
+
+    void on_actionShow_Carts_triggered();
+
+    void on_tabWidget_currentChanged(int index);
+
+    void on_actionNew_Cart_triggered();
+
+    void on_tableViewPricelist_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::MainWindow *ui;
     osDb *osDatabase;
@@ -92,6 +110,7 @@ private:
     QSqlRelationalTableModel *modelPricelist;
     QSqlRelationalTableModel *modelCustomer;
     QSqlRelationalTableModel *modelCart;
+    MyImageDelegate *imgDelegateProductImage;
     MyIntDelegate *iDelegateProductId;
     MyIntDelegate *iDelegateArticleLength;
     MyIntDelegate *iDelegateArticleDepth;
@@ -104,9 +123,9 @@ private:
     MyFloatDelegate *fDelegatePricePackage;
     MyCurrencyComboDelegate *cbxMyCurrencyComboDelegate;
     MyEmailLineEditDelegate *emlMyEmailDelegate;
-    int tab_index_pricelist;
-    int tab_index_customer;
-    int tab_index_cart;
+    const int tab_index_pricelist = 0;
+    const int tab_index_customer = 1;
+    const int tab_index_cart = 2;
 
     MyIntDelegate *iDelegateCustomerId;
 
@@ -125,10 +144,13 @@ private:
 
     DialogShowCarts *diaShowCarts;
     DialogOptions *diaOptions;
+    DialogImage *diaImage;
 
     QAction *add_to_cart;
+    QAction *show_image;
     QMenu *pricelistContextMenu;
     QSignalMapper *signalMapperPricelist;
+    QSignalMapper *signalMapperShowImage;
 
     CartWidget *cart_widget;
 

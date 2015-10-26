@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    tab_index_pricelist = 0;
-    tab_index_customer = 1;
-    tab_index_cart = 2;
+    //tab_index_pricelist = 0;
+    //tab_index_customer = 1;
+    //tab_index_cart = 2;
 
     this->ui->tabWidget->tabBar()->tabButton(0,QTabBar::RightSide)->resize(0, 0);
     this->ui->tabWidget->tabBar()->tabButton(1,QTabBar::RightSide)->resize(0, 0);
@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     proxymodelPricelist = new AdvQSortFilterProxyModel(this);
 
+    imgDelegateProductImage = new MyImageDelegate();
     iDelegateProductId = new MyIntDelegate();
     iDelegateArticleLength = new MyIntDelegate();
     iDelegateArticleWidth = new MyIntDelegate();
@@ -67,11 +68,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     add_to_cart = new QAction(tr("Add to &Cart"), this);
 
+    show_image = new QAction(tr("Show &Image"), this);
+
     signalMapperEmailAddress = new QSignalMapper(this);
 
     QObject::connect(open_mailclient, SIGNAL(triggered()), signalMapperEmailAddress, SLOT(map()));
 
     QObject::connect(signalMapperEmailAddress, SIGNAL(mapped(QString)), this, SLOT(on_open_MailClient(QString)));
+
+
 
 
     signalMapperCart = new QSignalMapper(this);
@@ -89,9 +94,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     signalMapperPricelist = new QSignalMapper(this);
 
+    signalMapperShowImage = new QSignalMapper(this);
+
     QObject::connect(add_to_cart, SIGNAL(triggered()), signalMapperPricelist, SLOT(map()));
 
+    QObject::connect(show_image, SIGNAL(triggered()), signalMapperShowImage, SLOT(map()));
+
+
     QObject::connect(signalMapperPricelist, SIGNAL(mapped(QString)), this, SLOT(on_add_Cart(QString)));
+
+    QObject::connect(signalMapperShowImage, SIGNAL(mapped(QString)), this, SLOT(on_show_Image(QString)));
 
 
     emailAddressContextMenu = new QMenu("E-Mail", this);
@@ -109,6 +121,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(diaShowCarts, SIGNAL(cartSelected(QString)), this, SLOT(on_reopen_Cart(QString)));
 
     diaOptions = new DialogOptions(this);
+
+    diaImage = new DialogImage(this);
 
 }
 
@@ -474,6 +488,26 @@ void MainWindow::on_add_Cart(QString productid)
 
 }
 
+void MainWindow::on_show_Image(QString productid)
+{
+    qDebug() << "on_show_Image ";
+    diaImage->setImage(QByteArray( this->modelCustomer->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data().toByteArray()));
+
+    return;
+    if (diaImage->getDialogShown() == true)
+    {
+        diaImage->close();
+
+        diaImage->show();
+
+    } else {
+
+
+        diaImage->show();
+        diaImage->setDialogShown();
+    }
+}
+
 
 
 
@@ -486,36 +520,38 @@ void MainWindow::on_loaded_Database()
     this->modelPricelist->select();
 
 
-    this->modelPricelist->setHeaderData(1, Qt::Horizontal, QObject::tr("Product Id"));
-    this->modelPricelist->setHeaderData(2, Qt::Horizontal, QObject::tr("Article Name"));
-    this->modelPricelist->setHeaderData(3, Qt::Horizontal, QObject::tr("Price/Unit"));
-    this->modelPricelist->setHeaderData(4, Qt::Horizontal, QObject::tr("Price/Package"));
-    this->modelPricelist->setHeaderData(5, Qt::Horizontal, QObject::tr("Currency"));
-    this->modelPricelist->setHeaderData(6, Qt::Horizontal, QObject::tr("Packing Units"));
-    this->modelPricelist->setHeaderData(7, Qt::Horizontal, QObject::tr("Min. Units to Sell"));
-    this->modelPricelist->setHeaderData(8, Qt::Horizontal, QObject::tr("Length"));
-    this->modelPricelist->setHeaderData(9, Qt::Horizontal, QObject::tr("Width"));
-    this->modelPricelist->setHeaderData(10, Qt::Horizontal, QObject::tr("Depth"));
-    this->modelPricelist->setHeaderData(11, Qt::Horizontal, QObject::tr("Height"));
-    this->modelPricelist->setHeaderData(12, Qt::Horizontal, QObject::tr("Weight"));
-    this->modelPricelist->setHeaderData(12, Qt::Horizontal, QObject::tr("Estimated delivery time"));
-    this->modelPricelist->setHeaderData(13, Qt::Horizontal, QObject::tr("Article Description"));
+    this->modelPricelist->setHeaderData(1, Qt::Horizontal, QObject::tr("Image"));
+    this->modelPricelist->setHeaderData(2, Qt::Horizontal, QObject::tr("Product Id"));
+    this->modelPricelist->setHeaderData(3, Qt::Horizontal, QObject::tr("Article Name"));
+    this->modelPricelist->setHeaderData(4, Qt::Horizontal, QObject::tr("Price/Unit"));
+    this->modelPricelist->setHeaderData(5, Qt::Horizontal, QObject::tr("Price/Package"));
+    this->modelPricelist->setHeaderData(6, Qt::Horizontal, QObject::tr("Currency"));
+    this->modelPricelist->setHeaderData(7, Qt::Horizontal, QObject::tr("Packing Units"));
+    this->modelPricelist->setHeaderData(8, Qt::Horizontal, QObject::tr("Min. Units to Sell"));
+    this->modelPricelist->setHeaderData(9, Qt::Horizontal, QObject::tr("Length"));
+    this->modelPricelist->setHeaderData(10, Qt::Horizontal, QObject::tr("Width"));
+    this->modelPricelist->setHeaderData(11, Qt::Horizontal, QObject::tr("Depth"));
+    this->modelPricelist->setHeaderData(12, Qt::Horizontal, QObject::tr("Height"));
+    this->modelPricelist->setHeaderData(13, Qt::Horizontal, QObject::tr("Weight"));
+    this->modelPricelist->setHeaderData(14, Qt::Horizontal, QObject::tr("Estimated delivery time"));
+    this->modelPricelist->setHeaderData(15, Qt::Horizontal, QObject::tr("Article Description"));
 
     this->modelPricelist->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
 
     this->ui->tableViewPricelist->setModel(proxymodelPricelist);
 
-    this->ui->tableViewPricelist->setItemDelegateForColumn(1,iDelegateProductId);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(3,fDelegatePriceUnit);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(4,fDelegatePricePackage);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(5,cbxMyCurrencyComboDelegate);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(6,iDelegatePackingUnit);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(7,iDelegateMinSellUnits);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(8,iDelegateArticleLength);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(9,iDelegateArticleWidth);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(10,iDelegateArticleDepth);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(11,iDelegateArticleHeight);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(12,iDelegateArticleWeight);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(1,imgDelegateProductImage);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(2,iDelegateProductId);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(4,fDelegatePriceUnit);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(5,fDelegatePricePackage);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(6,cbxMyCurrencyComboDelegate);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(7,iDelegatePackingUnit);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(8,iDelegateMinSellUnits);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(9,iDelegateArticleLength);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(10,iDelegateArticleWidth);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(11,iDelegateArticleDepth);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(12,iDelegateArticleHeight);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(13,iDelegateArticleWeight);
 
 
 
@@ -526,6 +562,7 @@ void MainWindow::on_loaded_Database()
 
 
     this->ui->tableViewPricelist->resizeColumnsToContents();
+    this->ui->tableViewPricelist->resizeRowsToContents();
 
 
     this->modelCustomer->setTable("customer");
@@ -699,13 +736,19 @@ void MainWindow::on_tableViewPricelist_customContextMenuRequested(const QPoint &
 
         signalMapperPricelist->setMapping(add_to_cart, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
 
-        pricelistContextMenu->popup(this->ui->tableViewPricelist->viewport()->mapToGlobal(pos));
+
     }
+
+
+        pricelistContextMenu->addAction(show_image);
+        signalMapperShowImage->setMapping(show_image, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+
+    pricelistContextMenu->popup(this->ui->tableViewPricelist->viewport()->mapToGlobal(pos));
+
 }
 
 void MainWindow::on_actionExportODF_triggered()
 {
-    qDebug() << "export to word";
 
     if (this->ui->tabWidget->currentIndex() == tab_index_cart) {
 
@@ -754,16 +797,20 @@ void MainWindow::on_actionExportODF_triggered()
 
         QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
         QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0], filters, &defaultFilter);
-          if (!fileName.isEmpty()) {
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0] + QDir::separator() + genericHelper::getTimestamp()+"_"+this->cart_widget->getCartName()+"_"+this->cart_widget->getCustomerName()+".docx", filters, &defaultFilter);
+
+        if (!fileName.isEmpty()) {
 
               QFile::copy(QDir::toNativeSeparators(newDocxFile),QDir::toNativeSeparators(fileName));
 
-          }
+
+        }
 
 
     } else {
+
         QMessageBox::warning(this, genericHelper::getAppName(), tr("Export not available for %1").arg(this->ui->tabWidget->tabText(this->ui->tabWidget->currentIndex())));
+
     }
 
 
@@ -783,5 +830,112 @@ void MainWindow::on_actionOptions_triggered()
         diaOptions->show();
         diaOptions->setDialogShown();
     }
+
+}
+
+
+void MainWindow::on_actionAdd_to_Cart_triggered()
+{
+    qDebug() << "on_add_Cart " << this->modelCart->tableName();
+
+    QString  productid = QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
+    osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
+    this->modelCart->select();
+}
+
+void MainWindow::on_actionRemove_From_Cart_triggered()
+{
+
+}
+
+void MainWindow::on_actionShow_Carts_triggered()
+{
+
+    QString customerid = QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
+    diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
+
+    //currentCartCustomerId = customerid;
+    //currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();
+
+
+
+    if (diaShowCarts->getDialogShown() == true)
+    {
+        diaShowCarts->close();
+
+        diaShowCarts->show();
+
+    } else {
+
+
+        diaShowCarts->show();
+        diaShowCarts->setDialogShown();
+    }
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+
+
+    if (index == tab_index_pricelist ) {
+
+            this->ui->actionShow_Carts->setDisabled(true);
+            this->ui->actionRemove_From_Cart->setDisabled(true);
+            this->ui->actionNew_Entry_Pricelist->setDisabled(false);
+            this->ui->actionDelete_Entry->setDisabled(false);
+            this->ui->actionRevert_Changes->setDisabled(false);
+
+            if (this->ui->tabWidget->count() > 2) {
+                this->ui->actionAdd_to_Cart->setDisabled(false);
+            } else {
+                this->ui->actionAdd_to_Cart->setDisabled(true);
+            }
+
+            this->ui->actionExportODF->setDisabled(true);
+            this->ui->actionNew_Cart->setDisabled(true);
+
+
+
+            return;
+    }
+
+    if (index == tab_index_customer ) {
+
+            this->ui->actionShow_Carts->setDisabled(false);
+            this->ui->actionRemove_From_Cart->setDisabled(true);
+            this->ui->actionAdd_to_Cart->setDisabled(true);
+            this->ui->actionNew_Entry_Pricelist->setDisabled(false);
+            this->ui->actionDelete_Entry->setDisabled(false);
+            this->ui->actionRevert_Changes->setDisabled(false);
+            this->ui->actionExportODF->setDisabled(true);
+            this->ui->actionNew_Cart->setDisabled(false);
+
+            return;
+    }
+
+    if (index == tab_index_cart ) {
+
+            this->ui->actionShow_Carts->setDisabled(false);
+            this->ui->actionRemove_From_Cart->setDisabled(false);
+            this->ui->actionAdd_to_Cart->setDisabled(false);
+            this->ui->actionNew_Entry_Pricelist->setDisabled(true);
+            this->ui->actionDelete_Entry->setDisabled(true);
+            this->ui->actionRevert_Changes->setDisabled(true);
+            this->ui->actionExportODF->setDisabled(false);
+            this->ui->actionNew_Cart->setDisabled(true);
+
+            return;
+    }
+
+}
+
+void MainWindow::on_actionNew_Cart_triggered()
+{
+
+    this->on_open_Cart(QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+}
+
+void MainWindow::on_tableViewPricelist_doubleClicked(const QModelIndex &index)
+{
 
 }

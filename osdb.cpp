@@ -510,6 +510,7 @@ bool osDb::createTablePricelist()
 
          ret = query.exec("CREATE TABLE IF NOT EXISTS "+table+" "
                                  "(id INTEGER PRIMARY KEY, "
+                            "image BLOB, "
                             "productid BIGINT UNIQUE, "
                             "article_name VARCHAR NOT NULL, "
                             "price_unit REAL, "
