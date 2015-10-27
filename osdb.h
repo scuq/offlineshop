@@ -12,6 +12,7 @@
 #include <QSqlRecord>
 #include <QRegExp>
 #include <QStringList>
+#include <QPixmap>
 
 class osDb : public QObject
 {
@@ -23,6 +24,7 @@ public:
     bool createEmptyShoppingCart(int customerid, QString customername, QString prettydate, QString date);
     QHash<QString,QString> getCartInfos(QString carttablename);
     bool updateCartName(QString carttablename, QString cartname);
+    QPixmap getImage(int productid);
     bool fillAllExampleData();
     bool fillPricelistExampleData();
     bool fillCustomerExampleData();

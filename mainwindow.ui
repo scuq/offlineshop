@@ -32,13 +32,29 @@
         <string>Pricelist</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEditFilter"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Filter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
          <widget class="QTableView" name="tableViewPricelist">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
+          </property>
           <property name="alternatingRowColors">
            <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
           </property>
           <property name="gridStyle">
            <enum>Qt::NoPen</enum>
@@ -58,7 +74,17 @@
         <string>Customer</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEditFilterCustomer"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Filter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
          <widget class="QTableView" name="tableViewCustomer">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>

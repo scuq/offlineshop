@@ -37,13 +37,16 @@ void MyImageDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, c
 {
     QFileDialog *filedia = static_cast<QFileDialog*>(editor);
 
+    if (filedia->selectedFiles().length() > 0)    {
     QFile file(filedia->selectedFiles()[0]);
+
     if (! file.open(QIODevice::ReadOnly)) return;
 
     QByteArray byteArray = file.readAll();
 
 
     model->setData(index,byteArray);
+    }
 }
 
 void MyImageDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const

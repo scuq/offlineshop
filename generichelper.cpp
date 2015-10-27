@@ -68,6 +68,17 @@ bool genericHelper::isValidEmailAddress(QString address)
     }
 }
 
+bool genericHelper::isValidPhoneNumber(QString phone)
+{
+    QRegExp regexPhone("^([0-9\(\)\/\+ \-]*)$" );
+
+    if( regexPhone.indexIn( phone ) != -1 ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 QString genericHelper::unzipDocxWithAddon7Zip(QString docxfile)
 {
     QString addon7z = "";
@@ -440,6 +451,8 @@ bool genericHelper::addRecentFiles(QString recentfile, int maxrecent)
 
     _recentfilelist = genericHelper::getRecentFiles();
 
+
+    qDebug() << _recentfilelist;
 
     if (_recentfilelist.length() <= 0) {
         _recentfilelist.append(recentfile);

@@ -1,5 +1,7 @@
-#ifndef ADVQSORTFILTERPROXYMODEL_H
-#define ADVQSORTFILTERPROXYMODEL_H
+#ifndef ADVQSORTFILTERPROXYMODELCUSTOMER_H
+#define ADVQSORTFILTERPROXYMODELCUSTOMER_H
+
+
 
 #include <QSortFilterProxyModel>
 #include <QModelIndex>
@@ -7,12 +9,12 @@
 #include <QBrush>
 #include <QDebug>
 
-class AdvQSortFilterProxyModel : public QSortFilterProxyModel
+class AdvQSortFilterProxyModelCustomer : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
 
-   AdvQSortFilterProxyModel(QObject* parent);
+   AdvQSortFilterProxyModelCustomer(QObject* parent);
    QVariant data ( const QModelIndex & index, int role ) const;
    QVariant getColData(int keycol, QVariant key, int updatecol);
 
@@ -27,4 +29,4 @@ private:
 
 };
 
-#endif // ADVQSORTFILTERPROXYMODEL_H
+#endif // ADVQSORTFILTERPROXYMODELCUSTOMER_H

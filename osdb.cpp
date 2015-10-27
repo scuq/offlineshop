@@ -374,6 +374,8 @@ bool osDb::addItemToCart(int productid, QString cartname)
              }
 
 
+
+
          } else {
              genericHelper::log("no products matching productid: "+QString::number(productid)+" found");
          }
@@ -554,6 +556,7 @@ bool osDb::createTableCustomer()
                                  "(id INTEGER PRIMARY KEY, "
                             "customerid BIGINT UNIQUE, "
                             "customer_name VARCHAR, "
+                            "customer_numberofcarts INT DEFAULT 0, "
                             "customer_phonenumber BIGINT, "
                             "customer_email VARCHAR, "
                             "customer_address VARCHAR, "
@@ -704,7 +707,9 @@ bool osDb::createEmptyShoppingCart(int customerid, QString customername, QString
 {
     QString table = "cart_"+QString::number(customerid)+"_"+date;
 
-    genericHelper::log("checking table: "+table);
+    genericHelper::log("create new empty cart table: "+table);
+
+    int customer_currentNumberOfCarts = 0;
 
     bool ret = false;
 
@@ -729,6 +734,10 @@ bool osDb::createEmptyShoppingCart(int customerid, QString customername, QString
 
 
          if (ret == true) {
+
+             genericHelper::log("table created: "+table);
+
+             genericHelper::log("insert new entry in cartlist table.");
 
              query.prepare( "INSERT INTO cartlist "
                             "('cartname', 'carttablename', 'customer_name', 'customerid', 'pretty_date', 'date') "
@@ -767,11 +776,62 @@ bool osDb::createEmptyShoppingCart(int customerid, QString customername, QString
 
              } else {
 
+                 genericHelper::log("entry inserted into cartlist");
                  ret = true;
 
              }
 
          }
+
+         if (ret == true) {
+
+             genericHelper::log("selecting numberofcarts for customer: "+QString::number(customerid));
+
+
+             ret = query.exec("SELECT customer_numberofcarts FROM customer WHERE customerid = "+QString::number(customerid)+" LIMIT 1;");
+
+             query.next();
+
+
+             customer_currentNumberOfCarts = query.value(0).toInt();
+
+             genericHelper::log(QString::number(customer_currentNumberOfCarts)+" carts found for customer: "+QString::number(customerid));
+
+
+         }
+
+         qDebug() << customer_currentNumberOfCarts;
+
+         if (ret == true) {
+
+             genericHelper::log("updating numberofcarts for customer: "+QString::number(customerid));
+
+             query.prepare( "UPDATE customer SET  customer_numberofcarts = ? WHERE customerid = "+QString::number(customerid)+";");
+
+             QVariantList numberOfCarts;
+
+             numberOfCarts << customer_currentNumberOfCarts+1;
+
+             query.addBindValue(numberOfCarts);
+
+             if (!query.execBatch()) {
+                 ret = false;
+
+                 genericHelper::log("db error: "+query.lastError().text());
+                 genericHelper::log("db query: "+query.executedQuery());
+
+
+
+             } else {
+
+                 genericHelper::log("increasing numberofcarts for customer: "+QString::number(customerid)+" to "+QString::number(customer_currentNumberOfCarts+1));
+                 ret = true;
+
+             }
+
+
+         }
+
 
 
 
@@ -864,4 +924,36 @@ bool osDb::updateCartName(QString carttablename, QString cartname)
 
     return ret;
 
+}
+
+QPixmap osDb::getImage(int productid)
+{
+
+
+    QPixmap pixmap;
+
+    if ( QSqlDatabase::database(genericHelper::getAppName()).isOpen() )
+    {
+        QSqlQuery query(QSqlDatabase::database(genericHelper::getAppName()));
+
+        query.prepare("SELECT image FROM pricelist WHERE productid="+QString::number(productid)+" LIMIT 1 ;");
+        qDebug() << "SELECT image FROM pricelist WHERE productid="+QString::number(productid)+" LIMIT 1 ;";
+
+        if (!query.exec()) {
+
+            genericHelper::log("db error: "+query.lastError().text());
+            genericHelper::log("db query: "+query.executedQuery());
+
+        } else {
+
+
+            query.next();
+
+            pixmap.loadFromData(query.value(0).toByteArray());
+
+        }
+
+    }
+    qDebug() << pixmap.size();
+    return pixmap;
 }

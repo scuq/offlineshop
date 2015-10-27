@@ -14,15 +14,19 @@
 #include <QSqlRecord>
 #include <QDesktopServices>
 #include "advqsortfilterproxymodel.h"
+#include "advqsortfilterproxymodelcustomer.h"
 #include <myintdelegate.h>
 #include <myfloatdelegate.h>
 #include <mycurrencycombodelegate.h>
 #include <myemaillineeditdelegate.h>
+#include <myphonelineeditdelegate.h>
 #include <myimagedelegate.h>
+#include <mynoeditdelegate.h>
 #include "cartwidget.h"
 #include "dialogshowcarts.h"
 #include "dialogoptions.h"
-#include "dialogimage.h"
+#include "dialogshowproduct.h"
+#include "dialogshowcustomer.h"
 
 #include "osdb.h"
 
@@ -59,7 +63,9 @@ private slots:
 
     void on_add_Cart(QString productid);
 
-    void on_show_Image(QString productid);
+    void on_show_Product(QString productid);
+
+    void on_show_Customer(QString customerid);
 
     void on_loaded_Database();
 
@@ -101,6 +107,10 @@ private slots:
 
     void on_tableViewPricelist_doubleClicked(const QModelIndex &index);
 
+    void on_tableViewPricelist_clicked(const QModelIndex &index);
+
+
+
 private:
     Ui::MainWindow *ui;
     osDb *osDatabase;
@@ -121,8 +131,10 @@ private:
     MyIntDelegate *iDelegateMinSellUnits;
     MyFloatDelegate *fDelegatePriceUnit;
     MyFloatDelegate *fDelegatePricePackage;
+    MyNoEditDelegate *noedDelegate;
     MyCurrencyComboDelegate *cbxMyCurrencyComboDelegate;
     MyEmailLineEditDelegate *emlMyEmailDelegate;
+    MyPhoneLineEditDelegate *phoMyPhoneDelegate;
     const int tab_index_pricelist = 0;
     const int tab_index_customer = 1;
     const int tab_index_cart = 2;
@@ -130,7 +142,7 @@ private:
     MyIntDelegate *iDelegateCustomerId;
 
     AdvQSortFilterProxyModel *proxymodelPricelist;
-    AdvQSortFilterProxyModel *proxymodelCustomer;
+    AdvQSortFilterProxyModelCustomer *proxymodelCustomer;
 
     QAction *open_mailclient;
     QMenu *emailAddressContextMenu;
@@ -144,13 +156,17 @@ private:
 
     DialogShowCarts *diaShowCarts;
     DialogOptions *diaOptions;
-    DialogImage *diaImage;
+    DialogShowproduct *diaShowproduct;
+    DialogShowcustomer *diaShowcustomer;
 
     QAction *add_to_cart;
-    QAction *show_image;
+    QAction *show_product;
+    QAction *show_customer;
+
     QMenu *pricelistContextMenu;
     QSignalMapper *signalMapperPricelist;
-    QSignalMapper *signalMapperShowImage;
+    QSignalMapper *signalMapperShowProduct;
+    QSignalMapper *signalMapperShowCustomer;
 
     CartWidget *cart_widget;
 

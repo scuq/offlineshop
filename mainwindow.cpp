@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     osDatabase = new osDb();
 
 
+
     maxRecentFiles = 4;
 
     defaultStatusTimeout = 5000;
@@ -32,6 +33,12 @@ MainWindow::MainWindow(QWidget *parent) :
     modelPricelist = new QSqlRelationalTableModel(this,QSqlDatabase::database(genericHelper::getAppName()));
 
     proxymodelPricelist = new AdvQSortFilterProxyModel(this);
+    proxymodelPricelist->setSortCaseSensitivity(Qt::CaseInsensitive);
+    proxymodelPricelist->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+
+    QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->proxymodelPricelist, SLOT(setFilterRegExp(QString)));
+
 
     imgDelegateProductImage = new MyImageDelegate();
     iDelegateProductId = new MyIntDelegate();
@@ -46,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fDelegatePricePackage = new MyFloatDelegate();
     cbxMyCurrencyComboDelegate = new MyCurrencyComboDelegate();
     emlMyEmailDelegate = new MyEmailLineEditDelegate();
+    phoMyPhoneDelegate = new MyPhoneLineEditDelegate();
+    noedDelegate = new MyNoEditDelegate();
 
 
     proxymodelPricelist->setSourceModel(modelPricelist);
@@ -54,9 +63,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     modelCart = new QSqlRelationalTableModel(this,QSqlDatabase::database(genericHelper::getAppName()));
 
-    proxymodelCustomer = new AdvQSortFilterProxyModel(this);
+    proxymodelCustomer = new AdvQSortFilterProxyModelCustomer(this);
 
     proxymodelCustomer->setSourceModel(modelCustomer);
+    proxymodelCustomer->setSortCaseSensitivity(Qt::CaseInsensitive);
+    proxymodelCustomer->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    QObject::connect(this->ui->lineEditFilterCustomer, SIGNAL(textChanged(QString)), this->proxymodelCustomer, SLOT(setFilterRegExp(QString)));
 
     iDelegateCustomerId = new MyIntDelegate();
 
@@ -68,7 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     add_to_cart = new QAction(tr("Add to &Cart"), this);
 
-    show_image = new QAction(tr("Show &Image"), this);
+    show_product = new QAction(tr("Show &Product"), this);
+
+    show_customer = new QAction(tr("Show &Customer"), this);
 
     signalMapperEmailAddress = new QSignalMapper(this);
 
@@ -94,16 +109,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     signalMapperPricelist = new QSignalMapper(this);
 
-    signalMapperShowImage = new QSignalMapper(this);
+    signalMapperShowProduct = new QSignalMapper(this);
+
+    signalMapperShowCustomer = new QSignalMapper(this);
 
     QObject::connect(add_to_cart, SIGNAL(triggered()), signalMapperPricelist, SLOT(map()));
 
-    QObject::connect(show_image, SIGNAL(triggered()), signalMapperShowImage, SLOT(map()));
+    QObject::connect(show_product, SIGNAL(triggered()), signalMapperShowProduct, SLOT(map()));
+
+    QObject::connect(show_customer, SIGNAL(triggered()), signalMapperShowCustomer, SLOT(map()));
 
 
     QObject::connect(signalMapperPricelist, SIGNAL(mapped(QString)), this, SLOT(on_add_Cart(QString)));
 
-    QObject::connect(signalMapperShowImage, SIGNAL(mapped(QString)), this, SLOT(on_show_Image(QString)));
+    QObject::connect(signalMapperShowProduct, SIGNAL(mapped(QString)), this, SLOT(on_show_Product(QString)));
+
+    QObject::connect(signalMapperShowCustomer, SIGNAL(mapped(QString)), this, SLOT(on_show_Customer(QString)));
 
 
     emailAddressContextMenu = new QMenu("E-Mail", this);
@@ -122,7 +143,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     diaOptions = new DialogOptions(this);
 
-    diaImage = new DialogImage(this);
+    diaShowproduct = new DialogShowproduct(this);
+
+    diaShowcustomer = new DialogShowcustomer(this);
 
 }
 
@@ -152,6 +175,7 @@ void MainWindow::on_actionNew_Database_triggered()
         } else {
             this->toggleInputEnabled(true);
             genericHelper::addRecentFiles(fileName,maxRecentFiles);
+            this->fillRecentFileHistory();
             ui->statusBar->showMessage(tr("Database created."), defaultStatusTimeout);
 
         }
@@ -187,6 +211,7 @@ void MainWindow::on_actionOpen_Database_triggered()
               ui->statusBar->showMessage(tr("Database opened"), defaultStatusTimeout);
               emit databaseLoaded ( );
               genericHelper::addRecentFiles(fileName,maxRecentFiles);
+              this->fillRecentFileHistory();
           }
       }
 
@@ -233,10 +258,13 @@ void MainWindow::toggleInputEnabled(bool toggle)
 void MainWindow::fillRecentFileHistory()
 {
 
-     QListIterator<QString> recentFileItr (genericHelper::getRecentFiles());
-     while (recentFileItr.hasNext()) {
+     QStringList revFiles = genericHelper::getRecentFiles();
 
-         QString _currRecentFile = recentFileItr.next();
+     QListIterator<QString> recentFileItr (revFiles);
+     recentFileItr.toBack();
+     while (recentFileItr.hasPrevious()) {
+
+         QString _currRecentFile = recentFileItr.previous();
 
 
 
@@ -382,7 +410,7 @@ void MainWindow::on_open_Cart(QString customerid)
         this->modelCart->setHeaderData(9, Qt::Horizontal, QObject::tr("Training"));
         this->modelCart->setHeaderData(10, Qt::Horizontal, QObject::tr("Trial"));
 
-
+        this->modelCustomer->select();
 
 
         this->modelCart->select();
@@ -488,24 +516,59 @@ void MainWindow::on_add_Cart(QString productid)
 
 }
 
-void MainWindow::on_show_Image(QString productid)
+void MainWindow::on_show_Product(QString productid)
 {
-    qDebug() << "on_show_Image ";
-    diaImage->setImage(QByteArray( this->modelCustomer->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data().toByteArray()));
+    qDebug() << "on_show_Product " << productid;
+    diaShowproduct->setImage(osDatabase->getImage(productid.toInt()));
+    diaShowproduct->setProductId(productid);
 
-    return;
-    if (diaImage->getDialogShown() == true)
+    diaShowproduct->setProductName(this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 3).data(Qt::DisplayRole).toString());
+
+
+
+    if (diaShowproduct->getDialogShown() == true)
     {
-        diaImage->close();
+        diaShowproduct->close();
 
-        diaImage->show();
+        diaShowproduct->show();
 
     } else {
 
 
-        diaImage->show();
-        diaImage->setDialogShown();
+        diaShowproduct->show();
+        diaShowproduct->setDialogShown();
     }
+}
+
+void MainWindow::on_show_Customer(QString customerid)
+{
+     qDebug() << "on_show_Customer " << customerid;
+
+
+     diaShowcustomer->setCustomerId(customerid);
+     diaShowcustomer->setCustomerName(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 2).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setPhone(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 4).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setEmail(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 5).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setAddress(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 6).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setZipcode(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 7).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setCountry(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 8).data(Qt::DisplayRole).toString());
+     diaShowcustomer->setInfo(this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 9).data(Qt::DisplayRole).toString());
+
+
+
+     if (diaShowcustomer->getDialogShown() == true)
+     {
+         diaShowcustomer->close();
+
+         diaShowcustomer->show();
+
+     } else {
+
+
+         diaShowcustomer->show();
+         diaShowcustomer->setDialogShown();
+     }
+
 }
 
 
@@ -559,6 +622,8 @@ void MainWindow::on_loaded_Database()
 
 
     this->ui->tableViewPricelist->setColumnHidden(0,true);
+    this->ui->tableViewPricelist->setColumnHidden(8,true);
+    this->ui->tableViewPricelist->setColumnHidden(14,true);
 
 
     this->ui->tableViewPricelist->resizeColumnsToContents();
@@ -575,19 +640,23 @@ void MainWindow::on_loaded_Database()
 
     this->modelCustomer->setHeaderData(1, Qt::Horizontal, QObject::tr("Customer Id"));
     this->modelCustomer->setHeaderData(2, Qt::Horizontal, QObject::tr("Customer Name"));
-    this->modelCustomer->setHeaderData(3, Qt::Horizontal, QObject::tr("Phone"));
-    this->modelCustomer->setHeaderData(4, Qt::Horizontal, QObject::tr("E-Mail"));
-    this->modelCustomer->setHeaderData(5, Qt::Horizontal, QObject::tr("Address"));
-    this->modelCustomer->setHeaderData(6, Qt::Horizontal, QObject::tr("ZIP-Code"));
-    this->modelCustomer->setHeaderData(7, Qt::Horizontal, QObject::tr("Country"));
-    this->modelCustomer->setHeaderData(8, Qt::Horizontal, QObject::tr("Info"));
+    this->modelCustomer->setHeaderData(3, Qt::Horizontal, QObject::tr("#Carts"));
+    this->modelCustomer->setHeaderData(4, Qt::Horizontal, QObject::tr("Phone"));
+    this->modelCustomer->setHeaderData(5, Qt::Horizontal, QObject::tr("E-Mail"));
+    this->modelCustomer->setHeaderData(6, Qt::Horizontal, QObject::tr("Address"));
+    this->modelCustomer->setHeaderData(7, Qt::Horizontal, QObject::tr("ZIP-Code"));
+    this->modelCustomer->setHeaderData(8, Qt::Horizontal, QObject::tr("Country"));
+    this->modelCustomer->setHeaderData(9, Qt::Horizontal, QObject::tr("Info"));
 
     this->modelCustomer->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
 
     this->ui->tableViewCustomer->setModel(proxymodelCustomer);
 
     this->ui->tableViewCustomer->setItemDelegateForColumn(1,iDelegateCustomerId);
-    this->ui->tableViewCustomer->setItemDelegateForColumn(4,emlMyEmailDelegate);
+    this->ui->tableViewCustomer->setItemDelegateForColumn(3,noedDelegate);
+    this->ui->tableViewCustomer->setItemDelegateForColumn(4,phoMyPhoneDelegate);
+    this->ui->tableViewCustomer->setItemDelegateForColumn(5,emlMyEmailDelegate);
+
 
 
     this->ui->tableViewCustomer->setColumnHidden(0,true);
@@ -698,7 +767,7 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
 
         cartContextMenu->addAction(new_cart);
 
-        signalMapperCart->setMapping(new_cart, QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+        signalMapperCart->setMapping(new_cart, QString( this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
 
         cartContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
 
@@ -706,7 +775,10 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
 
         cartContextMenu->addAction(show_carts);
 
-        signalMapperShowCart->setMapping(show_carts, QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+        signalMapperShowCart->setMapping(show_carts, QString( this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+
+        cartContextMenu->addAction(show_customer);
+        signalMapperShowCustomer->setMapping(show_customer, QString( this->proxymodelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
 
         cartContextMenu->popup(this->ui->tableViewCustomer->viewport()->mapToGlobal(pos));
 
@@ -734,14 +806,14 @@ void MainWindow::on_tableViewPricelist_customContextMenuRequested(const QPoint &
 
         pricelistContextMenu->addAction(add_to_cart);
 
-        signalMapperPricelist->setMapping(add_to_cart, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+        signalMapperPricelist->setMapping(add_to_cart, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 2).data(Qt::DisplayRole).toString()));
 
 
     }
 
 
-        pricelistContextMenu->addAction(show_image);
-        signalMapperShowImage->setMapping(show_image, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString()));
+        pricelistContextMenu->addAction(show_product);
+        signalMapperShowProduct->setMapping(show_product, QString( this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 2).data(Qt::DisplayRole).toString()));
 
     pricelistContextMenu->popup(this->ui->tableViewPricelist->viewport()->mapToGlobal(pos));
 
@@ -939,3 +1011,9 @@ void MainWindow::on_tableViewPricelist_doubleClicked(const QModelIndex &index)
 {
 
 }
+
+void MainWindow::on_tableViewPricelist_clicked(const QModelIndex &index)
+{
+
+}
+

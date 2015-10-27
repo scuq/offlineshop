@@ -49,6 +49,7 @@ public:
      static int getGuiPollInterval();
      static bool setGuiPollInterval(int interval);
      static bool isValidEmailAddress(QString address);
+     static bool isValidPhoneNumber(QString phone);
      static QString unzipDocxWithAddon7Zip(QString docxfile);
      static QString zipTempDirToDocxWithAddon7Zip(QString tempdir);
      static void replaceVarInDocx(QString tempdir, QHash<QString,QString> replacmentVars);

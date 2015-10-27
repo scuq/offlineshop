@@ -1,11 +1,13 @@
-#include "advqsortfilterproxymodel.h"
+#include "advqsortfilterproxymodelcustomer.h"
 
-AdvQSortFilterProxyModel::AdvQSortFilterProxyModel(QObject *parent)
+
+
+AdvQSortFilterProxyModelCustomer::AdvQSortFilterProxyModelCustomer(QObject *parent)
 {
 
 }
 
-QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) const
+QVariant AdvQSortFilterProxyModelCustomer::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::BackgroundRole ) {
 
@@ -34,7 +36,7 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
 
     if ( role == Qt::TextAlignmentRole )
     {
-        if ((index.column() == 2) || (index.column() == 4) || (index.column() == 5)) {
+        if ((index.column() == 1) || (index.column() == 3) || (index.column() == 7) || (index.column() == 8)) {
             return Qt::AlignVCenter | Qt::AlignHCenter;
 
 
@@ -44,7 +46,7 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
     return QSortFilterProxyModel::data( index, role );
 }
 
-QVariant AdvQSortFilterProxyModel::getColData(int keycol, QVariant key, int updatecol)
+QVariant AdvQSortFilterProxyModelCustomer::getColData(int keycol, QVariant key, int updatecol)
 {
 
     QVariant data = "";
@@ -65,7 +67,7 @@ QVariant AdvQSortFilterProxyModel::getColData(int keycol, QVariant key, int upda
 
 }
 
-bool AdvQSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool AdvQSortFilterProxyModelCustomer::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
 
     QModelIndex index1 = sourceModel()->index(source_row, 2, source_parent);
