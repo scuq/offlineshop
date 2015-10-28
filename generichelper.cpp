@@ -39,6 +39,50 @@ bool genericHelper::setProcessPollInterval(int interval) {
     return true;
 }
 
+
+void genericHelper::saveGeometry(QString window, QVariant geo)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("geo_"+window, geo);
+    settings.sync();
+}
+
+void genericHelper::saveWindowstate(QString window, QVariant state)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("windowstate_"+window, state);
+    settings.sync();
+}
+
+QVariant genericHelper::getGeometry(QString window)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QVariant _geo;
+
+
+        _geo = settings.value("geo_"+window, "");
+
+
+
+
+    return _geo;
+}
+
+QVariant genericHelper::getWindowstate(QString window)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QVariant _ws;
+
+
+        _ws = settings.value("windowstate_"+window, "");
+
+
+
+    return _ws;
+}
+
 int genericHelper::getGuiPollInterval() {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     if (settings.childKeys().contains("guiPollInterval"))
@@ -451,15 +495,23 @@ bool genericHelper::addRecentFiles(QString recentfile, int maxrecent)
 
     _recentfilelist = genericHelper::getRecentFiles();
 
+    QStringList _newrecentfilelist;
 
-    qDebug() << _recentfilelist;
+    if (_recentfilelist.count(recentfile) > 0 ) {
+        return true;
+    }
 
     if (_recentfilelist.length() <= 0) {
         _recentfilelist.append(recentfile);
-        setRecentFiles(_recentfilelist);
+        return setRecentFiles(_recentfilelist);
+
     }
+
     if (_recentfilelist.length() >= maxrecent) {
-        _recentfilelist[0] = recentfile;
+
+        _recentfilelist.pop_back();
+        _recentfilelist.prepend(recentfile);
+
     } else {
        _recentfilelist.append(recentfile);
     }

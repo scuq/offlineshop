@@ -6,6 +6,7 @@ DialogShowcustomer::DialogShowcustomer(QWidget *parent) :
     ui(new Ui::DialogShowcustomer)
 {
     ui->setupUi(this);
+    restoreGeometry(genericHelper::getGeometry("showcustomer").toByteArray());
 }
 
 
@@ -71,5 +72,6 @@ void DialogShowcustomer::setInfo(QString info)
 
 void DialogShowcustomer::on_pushButtonClose_clicked()
 {
+    genericHelper::saveGeometry("showcustomer",saveGeometry());
     this->hide();
 }

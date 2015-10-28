@@ -32,6 +32,7 @@ public:
     bool open(QString path);
     QStringList getTables(QRegExp rxFilter);
 
+
     bool close();
     bool testConn();
     bool isOpen();

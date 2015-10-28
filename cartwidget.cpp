@@ -41,6 +41,11 @@ void CartWidget::setModel(QSqlRelationalTableModel *model)
     this->ui->tableViewCart->setColumnHidden(0,true);
 }
 
+void CartWidget::resizeColumns()
+{
+    this->ui->tableViewCart->resizeColumnsToContents();
+}
+
 QString CartWidget::getCartName()
 {
     return this->ui->lineEditCartName->text();
@@ -76,5 +81,10 @@ void CartWidget::on_lineEditCartName_returnPressed()
 
 void CartWidget::on_lineEditCartName_editingFinished()
 {
-     emit onCartNameChanged(this->ui->lineEditCartName->text());
+    // emit onCartNameChanged(this->ui->lineEditCartName->text());
+}
+
+void CartWidget::on_lineEditCartName_textChanged(const QString &arg1)
+{
+    emit onCartNameChanged(this->ui->lineEditCartName->text());
 }

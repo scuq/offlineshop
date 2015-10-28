@@ -58,15 +58,17 @@ void MyImageDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionVi
 void MyImageDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
      QByteArray value = index.model()->data(index,Qt::DisplayRole).toByteArray();
-     QPixmap pixmap = QPixmap();
-     pixmap.loadFromData(value);
+     if (!value.isNull()) {
+         QPixmap pixmap = QPixmap();
+         pixmap.loadFromData(value);
 
 
-     painter->save();
+         painter->save();
 
-     painter->drawPixmap(option.rect.x(),option.rect.y(),option.rect.width(),option.rect.height(),  pixmap.scaled(60,60,Qt::KeepAspectRatio));
+         painter->drawPixmap(option.rect.x(),option.rect.y(),option.rect.width(),option.rect.height(),  pixmap.scaled(60,60,Qt::KeepAspectRatio));
 
-     painter->restore();
+         painter->restore();
+     }
 }
 
 

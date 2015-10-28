@@ -7,7 +7,7 @@ DialogShowproduct::DialogShowproduct(QWidget *parent) :
     ui(new Ui::DialogShowproduct)
 {
     ui->setupUi(this);
-
+    restoreGeometry(genericHelper::getGeometry("showproduct").toByteArray());
 
 }
 
@@ -53,6 +53,6 @@ void DialogShowproduct::setProductName(QString productname)
 
 void DialogShowproduct::on_pushButtonClose_clicked()
 {
-
+    genericHelper::saveGeometry("showproduct",saveGeometry());
     this->hide();
 }

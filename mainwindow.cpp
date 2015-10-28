@@ -7,6 +7,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    restoreGeometry(genericHelper::getGeometry("main").toByteArray());
+    restoreState(genericHelper::getWindowstate("main").toByteArray());
+
     //tab_index_pricelist = 0;
     //tab_index_customer = 1;
     //tab_index_cart = 2;
@@ -261,10 +264,15 @@ void MainWindow::fillRecentFileHistory()
      QStringList revFiles = genericHelper::getRecentFiles();
 
      QListIterator<QString> recentFileItr (revFiles);
-     recentFileItr.toBack();
-     while (recentFileItr.hasPrevious()) {
 
-         QString _currRecentFile = recentFileItr.previous();
+
+      for (int i = 0; i < recentFileActions.count() ; ++i) {
+          this->ui->menuFile->removeAction(recentFileActions.at(i));
+      }
+
+     while (recentFileItr.hasNext()) {
+
+         QString _currRecentFile = recentFileItr.next();
 
 
 
@@ -336,6 +344,13 @@ bool MainWindow::closeDatabase()
 
         return true;
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    genericHelper::saveGeometry("main",saveGeometry());
+    genericHelper::saveWindowstate("main",saveState());
+
 }
 
 
@@ -483,10 +498,18 @@ void MainWindow::on_show_Carts(QString customerid)
 {
     qDebug() << "on_show_Carts" << customerid;
 
-    diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
+    QStringList cart_tables;
+    cart_tables = osDatabase->getTables(QRegExp("^cart_"+customerid+"_"));
 
-    //currentCartCustomerId = customerid;
-    //currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();
+    diaShowCarts->clearCarts();
+
+    for (int i=0;i<cart_tables.length();i++) {
+
+
+        diaShowCarts->addCarts(cart_tables.at(i),osDatabase->getCartInfos(cart_tables.at(i)));
+    }
+
+
 
 
 
@@ -513,6 +536,7 @@ void MainWindow::on_add_Cart(QString productid)
 
     osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
     this->modelCart->select();
+    this->cart_widget->resizeColumns();
 
 }
 
@@ -735,6 +759,8 @@ void MainWindow::on_actionFill_with_Example_Data_triggered()
     osDatabase->fillAllExampleData();
     modelPricelist->select();
     modelCustomer->select();
+    this->ui->tableViewCustomer->resizeColumnsToContents();
+    this->ui->tableViewPricelist->resizeColumnsToContents();
 }
 
 void MainWindow::on_tableViewCustomer_clicked(const QModelIndex &index)
@@ -924,7 +950,7 @@ void MainWindow::on_actionShow_Carts_triggered()
 {
 
     QString customerid = QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
-    diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
+    ////diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
 
     //currentCartCustomerId = customerid;
     //currentCartCustomerName = this->proxymodelCustomer->getColData(1,customerid,2).toString();

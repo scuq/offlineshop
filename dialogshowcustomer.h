@@ -2,6 +2,7 @@
 #define DIALOGSHOWCUSTOMER_H
 
 #include <QDialog>
+#include "generichelper.h"
 
 namespace Ui {
 class DialogShowcustomer;

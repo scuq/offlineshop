@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QGraphicsPixmapItem>
 #include <QtAlgorithms>
+#include "generichelper.h"
 
 namespace Ui {
 class DialogShowproduct;

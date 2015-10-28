@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QDebug>
 #include <QListWidgetItem>
+#include "generichelper.h"
 
 namespace Ui {
 class DialogShowCarts;
@@ -18,10 +19,13 @@ public:
     ~DialogShowCarts();
     void setDialogShown();
     bool getDialogShown();
-    void setCarts(QStringList carts);
+    void clearCarts();
+    void addCarts(QString cart, QHash<QString,QString> cartinfo);
 
 private slots:
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
+    void on_treeWidget_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::DialogShowCarts *ui;

@@ -20,6 +20,7 @@ public:
     void setCartName(QString cartname);
     void setDate(QString date);
     void setModel(QSqlRelationalTableModel *model);
+    void resizeColumns();
     QString getCartName();
     QString getCustomerName();
     QString getDate();
@@ -31,6 +32,8 @@ private slots:
     void on_lineEditCartName_returnPressed();
 
     void on_lineEditCartName_editingFinished();
+
+    void on_lineEditCartName_textChanged(const QString &arg1);
 
 private:
     Ui::CartWidget *ui;

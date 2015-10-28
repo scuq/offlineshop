@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QFileDialog>
 #include <QMessageBox>
+
 #include "generichelper.h"
 
 namespace Ui {

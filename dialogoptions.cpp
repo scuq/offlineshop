@@ -6,6 +6,8 @@ DialogOptions::DialogOptions(QWidget *parent) :
     ui(new Ui::DialogOptions)
 {
     ui->setupUi(this);
+    restoreGeometry(genericHelper::getGeometry("options").toByteArray());
+
 }
 
 
@@ -95,7 +97,10 @@ void DialogOptions::on_pushButtonOk_clicked()
 
     genericHelper::setTemplateFile(this->ui->lineEditTemplateFile->text());
 
+    genericHelper::saveGeometry("options",saveGeometry());
     this->hide();
+
+
 
 }
 

@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QSignalMapper>
+#include <QCloseEvent>
 #include <QSqlRelationalTableModel>
 #include <QSqlQueryModel>
 #include <QSqlRecord>
@@ -176,6 +177,8 @@ private:
     void fillRecentFileHistory();
     void submit(QSqlRelationalTableModel *model);
     bool closeDatabase();
+
+    void closeEvent(QCloseEvent *); // Overriding the window's close event
 
 signals:
     void databaseLoaded();

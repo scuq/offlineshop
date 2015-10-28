@@ -35,6 +35,10 @@ public:
      static QString getAppDir();
      static QString getAppName();
      static QStringList getCurrencies();
+     static void saveGeometry(QString window, QVariant geo);
+     static void saveWindowstate(QString window, QVariant state);
+     static QVariant getGeometry(QString window);
+     static QVariant getWindowstate(QString window);
      static bool setAppDir(QString appdir);
      static QStringList getRecentFiles();
      static bool setRecentFiles(QStringList recentfiles);
