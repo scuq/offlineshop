@@ -45,11 +45,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     imgDelegateProductImage = new MyImageDelegate();
     iDelegateProductId = new MyIntDelegate();
-    iDelegateArticleLength = new MyIntDelegate();
-    iDelegateArticleWidth = new MyIntDelegate();
-    iDelegateArticleDepth = new MyIntDelegate();
-    iDelegateArticleHeight = new MyIntDelegate();
-    iDelegateArticleWeight = new MyIntDelegate();
+    fDelegateArticleLength = new MyFloatDelegate();
+    fDelegateArticleWidth = new MyFloatDelegate();
+    fDelegateArticleDepth = new MyFloatDelegate();
+    fDelegateArticleHeight = new MyFloatDelegate();
+    fDelegateArticleWeight = new MyFloatDelegate();
+    fDelegateArticleDiameter = new MyFloatDelegate();
     iDelegatePackingUnit = new MyIntDelegate();
     iDelegateMinSellUnits = new MyIntDelegate();
     fDelegatePriceUnit = new MyFloatDelegate();
@@ -302,13 +303,17 @@ void MainWindow::submit(QSqlRelationalTableModel *model)
     model->database().transaction();
      if (model->submitAll()) {
          model->database().commit();
+         model->select();
      } else {
          model->database().rollback();
-         QMessageBox::warning(this, tr("Costs"),
-                              tr("The database reported an error: %1")
-                              .arg(model->lastError().text()));
+         int ret = QMessageBox::warning(this, genericHelper::getAppName(),
+                              tr("The database reported an error %1 discard changes?")
+                              .arg(model->lastError().text()),QMessageBox::Cancel, QMessageBox::Ok);
+         if (ret == QMessageBox::Ok) {
+            model->select();
+         }
      }
-     model->select();
+
 
      ui->statusBar->showMessage(tr("Database saved"), defaultStatusTimeout);
 }
@@ -620,8 +625,9 @@ void MainWindow::on_loaded_Database()
     this->modelPricelist->setHeaderData(11, Qt::Horizontal, QObject::tr("Depth"));
     this->modelPricelist->setHeaderData(12, Qt::Horizontal, QObject::tr("Height"));
     this->modelPricelist->setHeaderData(13, Qt::Horizontal, QObject::tr("Weight"));
-    this->modelPricelist->setHeaderData(14, Qt::Horizontal, QObject::tr("Estimated delivery time"));
-    this->modelPricelist->setHeaderData(15, Qt::Horizontal, QObject::tr("Article Description"));
+    this->modelPricelist->setHeaderData(14, Qt::Horizontal, QObject::tr("Diameter"));
+    this->modelPricelist->setHeaderData(15, Qt::Horizontal, QObject::tr("Estimated delivery time"));
+    this->modelPricelist->setHeaderData(16, Qt::Horizontal, QObject::tr("Article Description"));
 
     this->modelPricelist->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
 
@@ -634,11 +640,12 @@ void MainWindow::on_loaded_Database()
     this->ui->tableViewPricelist->setItemDelegateForColumn(6,cbxMyCurrencyComboDelegate);
     this->ui->tableViewPricelist->setItemDelegateForColumn(7,iDelegatePackingUnit);
     this->ui->tableViewPricelist->setItemDelegateForColumn(8,iDelegateMinSellUnits);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(9,iDelegateArticleLength);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(10,iDelegateArticleWidth);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(11,iDelegateArticleDepth);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(12,iDelegateArticleHeight);
-    this->ui->tableViewPricelist->setItemDelegateForColumn(13,iDelegateArticleWeight);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(9,fDelegateArticleLength);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(10,fDelegateArticleWidth);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(11,fDelegateArticleDepth);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(12,fDelegateArticleHeight);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(13,fDelegateArticleWeight);
+    this->ui->tableViewPricelist->setItemDelegateForColumn(14,fDelegateArticleDiameter);
 
 
 
@@ -647,7 +654,7 @@ void MainWindow::on_loaded_Database()
 
     this->ui->tableViewPricelist->setColumnHidden(0,true);
     this->ui->tableViewPricelist->setColumnHidden(8,true);
-    this->ui->tableViewPricelist->setColumnHidden(14,true);
+    this->ui->tableViewPricelist->setColumnHidden(15,true);
 
 
     this->ui->tableViewPricelist->resizeColumnsToContents();
@@ -741,10 +748,12 @@ void MainWindow::on_actionNew_Entry_Pricelist_triggered()
         case 0:
             modelPricelist->insertRecord(modelPricelist->rowCount(),modelPricelist->record());
             ui->tableViewPricelist->scrollToBottom();
+            this->ui->tableViewPricelist->resizeColumnsToContents();
             break ;
         case 1:
             modelCustomer->insertRecord(modelCustomer->rowCount(),modelCustomer->record());
             ui->tableViewCustomer->scrollToBottom();
+            this->ui->tableViewCustomer->resizeColumnsToContents();
             break ;
         case 2:
             QMessageBox::information(this, genericHelper::getAppName(), tr("Add new products by selecting them in the pricelist tab."));

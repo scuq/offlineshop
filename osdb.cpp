@@ -525,8 +525,10 @@ bool osDb::createTablePricelist()
                             "article_depth REAL, "
                             "article_height REAL, "
                             "article_weight REAL, "                            
+                            "article_diameter REAL, "
                             "delivery_time INT "
                             "article_desc VARCHAR "
+
 
                                  ")" );
 

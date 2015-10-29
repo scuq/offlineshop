@@ -123,11 +123,12 @@ private:
     QSqlRelationalTableModel *modelCart;
     MyImageDelegate *imgDelegateProductImage;
     MyIntDelegate *iDelegateProductId;
-    MyIntDelegate *iDelegateArticleLength;
-    MyIntDelegate *iDelegateArticleDepth;
-    MyIntDelegate *iDelegateArticleWidth;
-    MyIntDelegate *iDelegateArticleHeight;
-    MyIntDelegate *iDelegateArticleWeight;
+    MyFloatDelegate *fDelegateArticleLength;
+    MyFloatDelegate *fDelegateArticleDepth;
+    MyFloatDelegate *fDelegateArticleWidth;
+    MyFloatDelegate *fDelegateArticleHeight;
+    MyFloatDelegate *fDelegateArticleWeight;
+    MyFloatDelegate *fDelegateArticleDiameter;
     MyIntDelegate *iDelegatePackingUnit;
     MyIntDelegate *iDelegateMinSellUnits;
     MyFloatDelegate *fDelegatePriceUnit;

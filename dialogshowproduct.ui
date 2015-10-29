@@ -29,35 +29,6 @@
    <property name="rightMargin">
     <number>1</number>
    </property>
-   <item row="1" column="0" colspan="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Article Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QLineEdit" name="lineEditProductName">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0" colspan="2">
     <widget class="QLineEdit" name="lineEditProductId">
      <property name="font">
@@ -70,6 +41,42 @@
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Article Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="2">
+    <widget class="QLabel" name="labelImage">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::NoTextInteraction</set>
      </property>
     </widget>
    </item>
@@ -101,25 +108,12 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="2">
-    <widget class="QLabel" name="labelImage">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::NoTextInteraction</set>
+   <item row="5" column="0" colspan="2">
+    <widget class="QPlainTextEdit" name="plainTextEditProductName">
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
      </property>
     </widget>
    </item>

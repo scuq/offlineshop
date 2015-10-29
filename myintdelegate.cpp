@@ -11,12 +11,14 @@ QWidget *MyIntDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     editor->setMaximum(1);
     editor->setMaximum(9999999999);
 
+
+
     return editor;
 }
 
 void MyIntDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    int value = index.model()->data(index,Qt::EditRole).toInt();
+    double value = index.model()->data(index,Qt::EditRole).toInt();
     QSpinBox *spinbox = static_cast<QSpinBox*>(editor);
     spinbox->setValue(value);
 
@@ -26,7 +28,7 @@ void MyIntDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, con
 {
     QSpinBox *spinbox = static_cast<QSpinBox*>(editor);
     spinbox->interpretText();
-    int value = spinbox->value();
+    double value = spinbox->value();
     model->setData(index,value,Qt::EditRole);
 
 }

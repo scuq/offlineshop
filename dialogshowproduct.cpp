@@ -48,7 +48,8 @@ void DialogShowproduct::setProductId(QString productid)
 
 void DialogShowproduct::setProductName(QString productname)
 {
-    this->ui->lineEditProductName->setText(productname);
+    this->ui->plainTextEditProductName->clear();
+    this->ui->plainTextEditProductName->appendPlainText(productname);
 }
 
 void DialogShowproduct::on_pushButtonClose_clicked()
