@@ -80,7 +80,30 @@ QVariant genericHelper::getWindowstate(QString window)
 
 
 
-    return _ws;
+        return _ws;
+}
+
+QString genericHelper::getLang()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _retstr = "";
+
+    if (settings.value("lang", "").toString().length() > 1) {
+        _retstr = settings.value("lang", "").toString();
+
+    } else {
+        _retstr = "EN";
+    }
+
+    return _retstr;
+}
+
+void genericHelper::setLang(QString lang)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("lang", lang);
+    settings.sync();
 }
 
 int genericHelper::getGuiPollInterval() {

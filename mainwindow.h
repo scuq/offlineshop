@@ -28,7 +28,7 @@
 #include "dialogoptions.h"
 #include "dialogshowproduct.h"
 #include "dialogshowcustomer.h"
-
+#include "QTranslator"
 #include "osdb.h"
 
 namespace Ui {
@@ -94,7 +94,7 @@ private slots:
 
     void on_actionOptions_triggered();
 
-
+    void on_lang_Changed(QString lang);
 
     void on_actionAdd_to_Cart_triggered();
 
@@ -117,6 +117,7 @@ private:
     osDb *osDatabase;
     int maxRecentFiles;
     int defaultStatusTimeout;
+    QTranslator translator;
     QList<QAction*> recentFileActions;
     QSqlRelationalTableModel *modelPricelist;
     QSqlRelationalTableModel *modelCustomer;
@@ -183,6 +184,7 @@ private:
 
 signals:
     void databaseLoaded();
+    void retranslateSubDialogs();
 };
 
 #endif // MAINWINDOW_H

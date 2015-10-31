@@ -8,6 +8,8 @@ DialogOptions::DialogOptions(QWidget *parent) :
     ui->setupUi(this);
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
 
+    this->ui->comboBoxLanguage->setCurrentText(genericHelper::getLang());
+
 }
 
 
@@ -64,6 +66,14 @@ void DialogOptions::refreshUiData()
     this->ui->lineEditTemplateFile->setText(genericHelper::getTemplateFile());
 
 
+
+
+
+}
+
+void DialogOptions::on_retranslate()
+{
+
 }
 
 void DialogOptions::on_pushButtonTemplateFileSelect_clicked()
@@ -97,6 +107,12 @@ void DialogOptions::on_pushButtonOk_clicked()
 
     genericHelper::setTemplateFile(this->ui->lineEditTemplateFile->text());
 
+    if (this->ui->comboBoxLanguage->currentText() != "<default>") {
+        genericHelper::setLang(this->ui->comboBoxLanguage->currentText());
+    }
+
+
+
     genericHelper::saveGeometry("options",saveGeometry());
     this->hide();
 
@@ -107,4 +123,12 @@ void DialogOptions::on_pushButtonOk_clicked()
 void DialogOptions::on_pushButtonAdd_clicked()
 {
     this->ui->tableWidgetReplacmentVars->insertRow(this->ui->tableWidgetReplacmentVars->rowCount());
+}
+
+void DialogOptions::on_comboBoxLanguage_currentTextChanged(const QString &arg1)
+{
+
+    if (arg1 != "<default>") {
+        emit langChanged(arg1);
+    }
 }

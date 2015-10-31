@@ -39,6 +39,8 @@ public:
      static void saveWindowstate(QString window, QVariant state);
      static QVariant getGeometry(QString window);
      static QVariant getWindowstate(QString window);
+     static QString getLang();
+     static void setLang(QString lang);
      static bool setAppDir(QString appdir);
      static QStringList getRecentFiles();
      static bool setRecentFiles(QStringList recentfiles);

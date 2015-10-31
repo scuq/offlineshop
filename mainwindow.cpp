@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
     restoreGeometry(genericHelper::getGeometry("main").toByteArray());
     restoreState(genericHelper::getWindowstate("main").toByteArray());
 
+    on_lang_Changed(genericHelper::getLang());
+
+
     //tab_index_pricelist = 0;
     //tab_index_customer = 1;
     //tab_index_cart = 2;
@@ -150,6 +153,11 @@ MainWindow::MainWindow(QWidget *parent) :
     diaShowproduct = new DialogShowproduct(this);
 
     diaShowcustomer = new DialogShowcustomer(this);
+
+    QObject::connect(diaOptions, SIGNAL(langChanged(QString)), this, SLOT(on_lang_Changed(QString)));
+
+    QObject::connect(this, SIGNAL(retranslateSubDialogs()), diaOptions, SLOT(on_retranslate()));
+
 
 }
 
@@ -696,6 +704,7 @@ void MainWindow::on_loaded_Database()
 
 
     this->ui->tableViewCustomer->resizeColumnsToContents();
+    this->ui->tableViewCustomer->resizeRowsToContents();
 
 
 
@@ -937,6 +946,28 @@ void MainWindow::on_actionOptions_triggered()
         diaOptions->show();
         diaOptions->setDialogShown();
     }
+
+}
+
+void MainWindow::on_lang_Changed(QString lang)
+{
+    QString langfile = "offlineshop_"+lang.toLower()+".qm";
+
+    if(translator.load(langfile)) {
+
+        genericHelper::log("loaded language file: "+langfile);
+        qApp->installTranslator(&translator);
+
+
+    } else {
+        qApp->removeTranslator(&translator);
+
+        genericHelper::log("failed to load language file: "+langfile);
+    }
+    this->ui->retranslateUi(this);
+
+   // emit retranslateSubDialogs();
+
 
 }
 

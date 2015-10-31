@@ -22,6 +22,9 @@ public:
     bool getDialogShown();
     void refreshUiData();
 
+public slots:
+    void on_retranslate();
+
 private slots:
     void on_pushButtonTemplateFileSelect_clicked();
 
@@ -29,9 +32,14 @@ private slots:
 
     void on_pushButtonAdd_clicked();
 
+    void on_comboBoxLanguage_currentTextChanged(const QString &arg1);
+
 private:
     Ui::DialogOptions *ui;
     bool dialogShown;
+
+signals:
+    void langChanged(QString);
 };
 
 #endif // DIALOGOPTIONS_H
