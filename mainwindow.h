@@ -111,7 +111,7 @@ private slots:
 
     void on_tableViewPricelist_clicked(const QModelIndex &index);
 
-
+    void on_updateNotify(const QString &latestVersion);
 
 private:
     Ui::MainWindow *ui;
@@ -184,6 +184,7 @@ private:
     void closeEvent(QCloseEvent *); // Overriding the window's close event
 
     updateCheck *uc;
+    QString currArch;
 
 
 

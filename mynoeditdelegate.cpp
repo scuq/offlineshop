@@ -29,11 +29,14 @@ void MyNoEditDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 {
     QStyleOptionViewItemV4 myOption = option;
 
+    myOption.text = index.data().toString();
+    myOption.displayAlignment = Qt::AlignCenter;
 
     myOption.backgroundBrush = (QBrush(QColor(255, 255, 242, 200)));
 
 
    //background-color: rgb(255, 255, 242);
+
 
 
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &myOption, painter);

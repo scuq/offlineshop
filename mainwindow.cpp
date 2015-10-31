@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     uc = new updateCheck(this);
+    currArch = CURRARCH;
 
     restoreGeometry(genericHelper::getGeometry("main").toByteArray());
     restoreState(genericHelper::getWindowstate("main").toByteArray());
@@ -146,11 +147,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this, SIGNAL(retranslateSubDialogs()), diaOptions, SLOT(on_retranslate()));
 
-    this->ui->tabWidget->setCurrentIndex(0);
-    this->on_tabWidget_currentChanged(0);
+
+    QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(on_updateNotify(const QString)));
 
     if (genericHelper::getCheckUpdate() == true) {
         uc->getCheck();
+
     }
 
 }
@@ -219,6 +221,8 @@ void MainWindow::on_actionOpen_Database_triggered()
           }
       }
 
+      this->ui->tabWidget->setCurrentIndex(0);
+      this->on_tabWidget_currentChanged(0);
 }
 
 
@@ -374,6 +378,8 @@ void MainWindow::on_open_RecentFile(QString fileName)
     }
 
 
+
+
     bool ret = osDatabase->open(fileName);
 
     if( ret == false) {
@@ -387,6 +393,8 @@ void MainWindow::on_open_RecentFile(QString fileName)
 
     }
 
+    this->ui->tabWidget->setCurrentIndex(0);
+    this->on_tabWidget_currentChanged(0);
 }
 
 void MainWindow::on_open_Cart(QString customerid)
@@ -1116,5 +1124,28 @@ void MainWindow::on_tableViewPricelist_doubleClicked(const QModelIndex &index)
 void MainWindow::on_tableViewPricelist_clicked(const QModelIndex &index)
 {
 
+}
+
+void MainWindow::on_updateNotify(const QString &latestVersion)
+{
+
+    QString latestVersionNumber = latestVersion;
+
+
+
+    QMessageBox::StandardButton reply;
+
+    reply = QMessageBox::question(this, genericHelper::getAppDir(),
+                                    tr("New version (%1) available, do you want to update?").arg(latestVersionNumber),
+                                    QMessageBox::Yes|QMessageBox::No);
+
+
+    if (reply == QMessageBox::Yes) {
+
+       QDesktopServices::openUrl(QUrl("http://offlineshop.abyle.org/downloads/offlineshop-"+latestVersionNumber+"-core-"+this->currArch+"-installer.exe"));
+
+      } else {
+        genericHelper::log("update dismissed.");
+      }
 }
 
