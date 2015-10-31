@@ -30,6 +30,7 @@
 #include "dialogshowcustomer.h"
 #include "QTranslator"
 #include "osdb.h"
+#include "updatecheck.h"
 
 namespace Ui {
 class MainWindow;
@@ -181,6 +182,10 @@ private:
     bool closeDatabase();
 
     void closeEvent(QCloseEvent *); // Overriding the window's close event
+
+    updateCheck *uc;
+
+
 
 signals:
     void databaseLoaded();

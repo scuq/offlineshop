@@ -62,8 +62,10 @@ public:
      static QHash<QString,QString> getDocxReplacmentVariables();
      static void setDocxReplacmentVariables(QHash<QString,QString> replacmentVars);
 
+     static QString getUpdateCheckUrl();
 
-
+     static bool getCheckUpdate();
+     static void setCheckUpdate(bool checkupdate);
 
      static QString getCompanyName();
      static void setCompanyName(QString companyname);

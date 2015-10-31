@@ -169,12 +169,12 @@ QString genericHelper::unzipDocxWithAddon7Zip(QString docxfile)
     extractedDocxDir = QDir::toNativeSeparators(tempExtractDir.path());
 
     if (tempExtractDir.exists()) {
-         qDebug() << "removing dir "+tempExtractDir.path();
+        //qDebug() << "removing dir "+tempExtractDir.path();
         tempExtractDir.removeRecursively();
-        qDebug() << "creating dir "+tempExtractDir.path();
+        //qDebug() << "creating dir "+tempExtractDir.path();
         tempExtractDir.mkpath(".");
     } else {
-        qDebug() << "creating dir "+tempExtractDir.path();
+        //qDebug() << "creating dir "+tempExtractDir.path();
         tempExtractDir.mkpath(".");
     }
 
@@ -186,13 +186,13 @@ QString genericHelper::unzipDocxWithAddon7Zip(QString docxfile)
         args << "-tzip";
         args << "-yo" + extractedDocxDir;
 
-        qDebug() << "7z found.";
-        qDebug() << "docx template found.";
+        //qDebug() << "7z found.";
+        //qDebug() << "docx template found.";
 
         QProcess *process = new QProcess(qApp);
 
 
-        qDebug() << addon7z << args;
+        //qDebug() << addon7z << args;
         process->start(addon7z, args);
         process->waitForFinished(20000);
 
@@ -237,13 +237,13 @@ QString genericHelper::zipTempDirToDocxWithAddon7Zip(QString tempdir)
         args << "-y";
         args << QDir::toNativeSeparators(tempdir+QDir::separator()+"*");
 
-        qDebug() << "7z found.";
-        qDebug() << "docx template found.";
+        //qDebug() << "7z found.";
+        //qDebug() << "docx template found.";
 
         QProcess *process = new QProcess(qApp);
 
 
-        qDebug() << addon7z << args;
+        //qDebug() << addon7z << args;
         process->start(addon7z, args);
         process->waitForFinished(20000);
 
@@ -259,11 +259,11 @@ QString genericHelper::zipTempDirToDocxWithAddon7Zip(QString tempdir)
 void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> replacmentVars)
 {
 
-    qDebug() << "replaceVarInDocx";
-    qDebug() << replacmentVars;
+    //qDebug() << "replaceVarInDocx";
+    //qDebug() << replacmentVars;
     QFile origDocxfile( tempdir + QDir::separator() + "word" + QDir::separator() + "document.xml" );
 
-    qDebug() << tempdir + QDir::separator() + "word" + QDir::separator() + "document.xml";
+    //qDebug() << tempdir + QDir::separator() + "word" + QDir::separator() + "document.xml";
 
     QString orgContent="";
 
@@ -272,7 +272,7 @@ void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> re
         if (origDocxfile.open(QIODevice::ReadOnly | QIODevice::Text))
         {
             QTextStream in(&origDocxfile);
-
+            in.setCodec("UTF-8");
             while(!in.atEnd()) {
                 orgContent += in.readLine();
             }
@@ -290,6 +290,7 @@ void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> re
 
 
             QString current = itrvars.next();
+            qDebug() << replacmentVars[current].toUtf8();
             orgContent.replace(current,replacmentVars[current]);
 
 
@@ -305,7 +306,9 @@ void genericHelper::replaceVarInDocx(QString tempdir,  QHash<QString,QString> re
         {
 
               QTextStream out(&origDocxfile);
+              out.setCodec("UTF-8");
               out << orgContent;
+
               origDocxfile.close();
         }
 
@@ -576,6 +579,37 @@ QString genericHelper::getPrettyTimestamp()
     return QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
 }
 
+void genericHelper::setCheckUpdate(bool checkupdate){
+
+
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+         settings.setValue("check_update", checkupdate);
+         settings.sync();
+
+
+}
+
+QString genericHelper::getUpdateCheckUrl()
+{
+    return "http://offlineshop.abyle.org/version/latest_"+genericHelper::getAppName();
+}
+
+bool genericHelper::getCheckUpdate(){
+
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    bool _checkupdate;
+
+    if (settings.value("check_update", "").toString().length() > 1) {
+        _checkupdate = settings.value("check_update", "").toBool();
+
+    } else {
+        genericHelper::setCheckUpdate(true);
+    }
+
+
+    return _checkupdate;
+}
 
 QString genericHelper::getLastErrorMsg() {
     LPWSTR bufPtr = NULL;

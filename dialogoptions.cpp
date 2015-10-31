@@ -111,7 +111,12 @@ void DialogOptions::on_pushButtonOk_clicked()
         genericHelper::setLang(this->ui->comboBoxLanguage->currentText());
     }
 
+    if (this->ui->checkBoxUpdateCheck->checkState() == Qt::Checked) {
 
+        genericHelper::setCheckUpdate(true);
+    } else {
+        genericHelper::setCheckUpdate(false);
+    }
 
     genericHelper::saveGeometry("options",saveGeometry());
     this->hide();

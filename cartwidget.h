@@ -26,6 +26,8 @@ public:
     QString getCustomerName();
     QString getDate();
     QString getCustomerId();
+    int getSelectedRow();
+    void removeRow(int row);
 
 private slots:
     void on_lineEditCartName_textEdited(const QString &arg1);

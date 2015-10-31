@@ -72,6 +72,17 @@ QString CartWidget::getCustomerId()
     return this->ui->lineEditCartCustimerId->text();
 }
 
+int CartWidget::getSelectedRow()
+{
+    return this->ui->tableViewCart->selectionModel()->currentIndex().row();
+}
+
+void CartWidget::removeRow(int row)
+{
+    this->ui->tableViewCart->model()->removeRow(row);
+
+}
+
 
 void CartWidget::on_lineEditCartName_textEdited(const QString &arg1)
 {

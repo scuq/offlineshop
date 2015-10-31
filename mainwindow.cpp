@@ -7,15 +7,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    uc = new updateCheck(this);
+
     restoreGeometry(genericHelper::getGeometry("main").toByteArray());
     restoreState(genericHelper::getWindowstate("main").toByteArray());
 
     on_lang_Changed(genericHelper::getLang());
-
-
-    //tab_index_pricelist = 0;
-    //tab_index_customer = 1;
-    //tab_index_cart = 2;
 
     this->ui->tabWidget->tabBar()->tabButton(0,QTabBar::RightSide)->resize(0, 0);
     this->ui->tabWidget->tabBar()->tabButton(1,QTabBar::RightSide)->resize(0, 0);
@@ -27,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->toggleInputEnabled(false);
 
     osDatabase = new osDb();
-
-
 
     maxRecentFiles = 4;
 
@@ -44,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->proxymodelPricelist, SLOT(setFilterRegExp(QString)));
-
 
     imgDelegateProductImage = new MyImageDelegate();
     iDelegateProductId = new MyIntDelegate();
@@ -98,9 +92,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(signalMapperEmailAddress, SIGNAL(mapped(QString)), this, SLOT(on_open_MailClient(QString)));
 
-
-
-
     signalMapperCart = new QSignalMapper(this);
 
     QObject::connect(new_cart, SIGNAL(triggered()), signalMapperCart, SLOT(map()));
@@ -113,7 +104,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(signalMapperShowCart, SIGNAL(mapped(QString)), this, SLOT(on_show_Carts(QString)));
 
-
     signalMapperPricelist = new QSignalMapper(this);
 
     signalMapperShowProduct = new QSignalMapper(this);
@@ -125,7 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(show_product, SIGNAL(triggered()), signalMapperShowProduct, SLOT(map()));
 
     QObject::connect(show_customer, SIGNAL(triggered()), signalMapperShowCustomer, SLOT(map()));
-
 
     QObject::connect(signalMapperPricelist, SIGNAL(mapped(QString)), this, SLOT(on_add_Cart(QString)));
 
@@ -143,7 +132,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this, SIGNAL(databaseLoaded()), this, SLOT(on_loaded_Database()));
 
-
     diaShowCarts = new DialogShowCarts(this);
 
     QObject::connect(diaShowCarts, SIGNAL(cartSelected(QString)), this, SLOT(on_reopen_Cart(QString)));
@@ -158,6 +146,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this, SIGNAL(retranslateSubDialogs()), diaOptions, SLOT(on_retranslate()));
 
+    this->ui->tabWidget->setCurrentIndex(0);
+    this->on_tabWidget_currentChanged(0);
+
+    if (genericHelper::getCheckUpdate() == true) {
+        uc->getCheck();
+    }
 
 }
 
@@ -206,8 +200,6 @@ void MainWindow::on_actionOpen_Database_triggered()
     }
 
 
-
-
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Database"),"",
                                                       tr("SQLite DB (*.db)"));
       if (!fileName.isEmpty()) {
@@ -227,15 +219,12 @@ void MainWindow::on_actionOpen_Database_triggered()
           }
       }
 
-
-
 }
 
 
 
 void MainWindow::on_actionClose_Database_triggered()
 {
-
 
     this->closeDatabase();
 }
@@ -331,7 +320,7 @@ bool MainWindow::closeDatabase()
     if (osDatabase->isOpen()) {
 
         if (modelPricelist->isDirty() | modelCustomer->isDirty()) {
-            qDebug() << "is dirty on close";
+            //qDebug() << "is dirty on close";
             QMessageBox::StandardButton ret;
             ret = QMessageBox::warning(this, genericHelper::getAppName(), tr("The database has been modified.\n Do you want to save your changes?"), QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 
@@ -502,14 +491,14 @@ void MainWindow::on_reopen_Cart(QString cartname)
 
 void MainWindow::on_changed_CartName(QString newcartname)
 {
-    qDebug() << "on_changed_CartName";
+    //qDebug() << "on_changed_CartName";
     //osDatabase->updateCartName(this->curr)
     osDatabase->updateCartName(this->currentCartInfos.value("carttablename"),newcartname);
 }
 
 void MainWindow::on_show_Carts(QString customerid)
 {
-    qDebug() << "on_show_Carts" << customerid;
+    //qDebug() << "on_show_Carts" << customerid;
 
     QStringList cart_tables;
     cart_tables = osDatabase->getTables(QRegExp("^cart_"+customerid+"_"));
@@ -544,7 +533,7 @@ void MainWindow::on_show_Carts(QString customerid)
 
 void MainWindow::on_add_Cart(QString productid)
 {
-    qDebug() << "on_add_Cart " << this->modelCart->tableName();
+    //qDebug() << "on_add_Cart " << this->modelCart->tableName();
 
 
     osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
@@ -556,7 +545,7 @@ void MainWindow::on_add_Cart(QString productid)
 
 void MainWindow::on_show_Product(QString productid)
 {
-    qDebug() << "on_show_Product " << productid;
+    //qDebug() << "on_show_Product " << productid;
     diaShowproduct->setImage(osDatabase->getImage(productid.toInt()));
     diaShowproduct->setProductId(productid);
 
@@ -580,7 +569,7 @@ void MainWindow::on_show_Product(QString productid)
 
 void MainWindow::on_show_Customer(QString customerid)
 {
-     qDebug() << "on_show_Customer " << customerid;
+     //qDebug() << "on_show_Customer " << customerid;
 
 
      diaShowcustomer->setCustomerId(customerid);
@@ -615,7 +604,7 @@ void MainWindow::on_show_Customer(QString customerid)
 
 void MainWindow::on_loaded_Database()
 {
-    qDebug() << "on_loaded_Database";
+    //qDebug() << "on_loaded_Database";
 
     this->modelPricelist->setTable("pricelist");
     this->modelPricelist->select();
@@ -719,14 +708,14 @@ void MainWindow::on_loaded_Database()
 
 void MainWindow::on_open_MailClient(QString mailaddress)
 {
-qDebug() << "on_open_MailClient";
+//qDebug() << "on_open_MailClient";
 
     QDesktopServices::openUrl(QUrl("mailto:"+mailaddress));
 }
 
 void MainWindow::on_actionSave_Database_triggered()
 {
-    qDebug() << "on_actionSave_Database_triggered";
+    //qDebug() << "on_actionSave_Database_triggered";
     if (modelPricelist->isDirty()) {
 
          this->submit(modelPricelist);
@@ -836,6 +825,28 @@ void MainWindow::on_tableViewCustomer_customContextMenuRequested(const QPoint &p
 void MainWindow::on_actionDelete_Entry_triggered()
 {
 
+    switch( this->ui->tabWidget->currentIndex() )
+    {
+        case 0:
+            qDebug() << this->ui->tableViewCustomer->selectionModel()->currentIndex().row();
+            this->proxymodelPricelist->removeRow(this->ui->tableViewPricelist->selectionModel()->currentIndex().row());
+            //modelPricelist->insertRecord(modelPricelist->rowCount(),modelPricelist->record());
+            //ui->tableViewPricelist->scrollToBottom();
+            //this->ui->tableViewPricelist->resizeColumnsToContents();
+            break ;
+        case 1:
+            qDebug() << this->ui->tableViewCustomer->selectionModel()->currentIndex().row();
+            this->modelCustomer->removeRows(this->ui->tableViewCustomer->selectionModel()->currentIndex().row(),1);
+
+            //modelCustomer->insertRecord(modelCustomer->rowCount(),modelCustomer->record());
+            //ui->tableViewCustomer->scrollToBottom();
+            //this->ui->tableViewCustomer->resizeColumnsToContents();
+            break ;
+        case 2:
+            //QMessageBox::information(this, genericHelper::getAppName(), tr("Add new products by selecting them in the pricelist tab."));
+            //this->ui->tabWidget->setCurrentIndex(0);
+            break ;
+    }
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
@@ -874,12 +885,14 @@ void MainWindow::on_actionExportODF_triggered()
         QString extractedDocxDir;
         QString newDocxFile;
         QHash<QString,QString> replacementvars;
+        QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
+        QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
 
         QFile file(genericHelper::getTemplateFile());
+
         if (file.exists()) {
 
             extractedDocxDir = genericHelper::unzipDocxWithAddon7Zip(genericHelper::getTemplateFile());
-
 
             replacementvars = genericHelper::getDocxReplacmentVariables();
 
@@ -895,19 +908,17 @@ void MainWindow::on_actionExportODF_triggered()
 
             for (int i = 0; i < row ; ++i) {
 
-                products << QString(this->modelCart->data(this->modelCart->index(i, 1), Qt::DisplayRole).toString()+" ("+this->modelCart->data(this->modelCart->index(i, 2), Qt::DisplayRole).toString()+")").toHtmlEscaped();
+                products << QString(this->modelCart->data(this->modelCart->index(i, 1), Qt::DisplayRole).toString()+" ("+this->modelCart->data(this->modelCart->index(i, 2), Qt::DisplayRole).toString()+")");
 
             }
 
             replacementvars["$PRODUCTS$"] = products.join("\n");
 
-            qDebug() << products;
+
 
             genericHelper::replaceVarInDocx(extractedDocxDir,replacementvars);
 
             newDocxFile = genericHelper::zipTempDirToDocxWithAddon7Zip(extractedDocxDir);
-
-
 
         } else {
             QMessageBox::warning(this, genericHelper::getAppName(), tr("Report template file not found: %1").arg(genericHelper::getTemplateFile()));
@@ -915,14 +926,11 @@ void MainWindow::on_actionExportODF_triggered()
 
         bool ret = false;
 
-        QString filters("Microsoft Word 2007/2010/2013 XML (*.docx)");
-        QString defaultFilter("Microsoft Word 2007/2010/2013 XML (*.docx)");
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save report file"), QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation)[0] + QDir::separator() + genericHelper::getTimestamp()+"_"+this->cart_widget->getCartName()+"_"+this->cart_widget->getCustomerName()+".docx", filters, &defaultFilter);
 
         if (!fileName.isEmpty()) {
 
               QFile::copy(QDir::toNativeSeparators(newDocxFile),QDir::toNativeSeparators(fileName));
-
 
         }
 
@@ -978,23 +986,45 @@ void MainWindow::on_lang_Changed(QString lang)
 
 void MainWindow::on_actionAdd_to_Cart_triggered()
 {
-    qDebug() << "on_add_Cart " << this->modelCart->tableName();
+    //qDebug() << "on_add_Cart " << this->modelCart->tableName();
+    QString productid;
 
-    QString  productid = QString( this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
-    osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
-    this->modelCart->select();
+    switch( this->ui->tabWidget->currentIndex() )
+    {
+        case 0:
+            productid = QString( this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
+            osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
+            this->modelCart->select();
+            break ;
+        case 1:
+            this->ui->tabWidget->setCurrentIndex(0);
+            break ;
+        case 2:
+            this->ui->tabWidget->setCurrentIndex(0);
+            break ;
+    }
+
+
+
 
 }
 
 void MainWindow::on_actionRemove_From_Cart_triggered()
 {
+    //qDebug() << this->ui->tableViewCustomer->selectionModel()->currentIndex().row();
+    //removeFromCart(this->ui->tableViewCustomer->selectionModel()->currentIndex().row())
 
+    this->cart_widget->removeRow(this->cart_widget->getSelectedRow());
+    this->modelCart->select();
 }
 
 void MainWindow::on_actionShow_Carts_triggered()
 {
 
     QString customerid = QString( this->modelCustomer->index( this->ui->tableViewCustomer->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
+
+    this->on_show_Carts(customerid);
+
     ////diaShowCarts->setCarts(osDatabase->getTables(QRegExp("^cart_"+customerid+"_")));
 
     //currentCartCustomerId = customerid;
