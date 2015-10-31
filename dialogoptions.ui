@@ -21,13 +21,6 @@
      </property>
     </widget>
    </item>
-   <item row="15" column="0" colspan="2">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
     <widget class="QCheckBox" name="checkBoxUpdateCheck">
      <property name="text">
@@ -35,6 +28,13 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="3">
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -167,13 +167,6 @@
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>Word/Docx Replacment Variables</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" colspan="3">
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>

@@ -550,6 +550,7 @@ void MainWindow::on_add_Cart(QString productid)
     osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
     this->modelCart->select();
     this->cart_widget->resizeColumns();
+    this->cart_widget->resizeRows();
 
 }
 
@@ -662,7 +663,7 @@ void MainWindow::on_loaded_Database()
 
     this->ui->tableViewPricelist->setColumnHidden(0,true);
     this->ui->tableViewPricelist->setColumnHidden(8,true);
-    this->ui->tableViewPricelist->setColumnHidden(15,true);
+   // this->ui->tableViewPricelist->setColumnHidden(15,true);
 
 
     this->ui->tableViewPricelist->resizeColumnsToContents();
@@ -685,7 +686,7 @@ void MainWindow::on_loaded_Database()
     this->modelCustomer->setHeaderData(6, Qt::Horizontal, QObject::tr("Address"));
     this->modelCustomer->setHeaderData(7, Qt::Horizontal, QObject::tr("ZIP-Code"));
     this->modelCustomer->setHeaderData(8, Qt::Horizontal, QObject::tr("Country"));
-    this->modelCustomer->setHeaderData(9, Qt::Horizontal, QObject::tr("Info"));
+    this->modelCustomer->setHeaderData(11, Qt::Horizontal, QObject::tr("Info"));
 
     this->modelCustomer->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
 
@@ -693,15 +694,16 @@ void MainWindow::on_loaded_Database()
 
     this->ui->tableViewCustomer->setItemDelegateForColumn(1,iDelegateCustomerId);
     this->ui->tableViewCustomer->setItemDelegateForColumn(3,noedDelegate);
+    // background-color: rgb(255, 255, 242);
     this->ui->tableViewCustomer->setItemDelegateForColumn(4,phoMyPhoneDelegate);
     this->ui->tableViewCustomer->setItemDelegateForColumn(5,emlMyEmailDelegate);
 
 
 
     this->ui->tableViewCustomer->setColumnHidden(0,true);
-    this->ui->tableViewCustomer->setColumnHidden(9,true);
+    //this->ui->tableViewCustomer->setColumnHidden(9,true);
     this->ui->tableViewCustomer->setColumnHidden(10,true);
-
+    this->ui->tableViewCustomer->setColumnHidden(11,true);
 
     this->ui->tableViewCustomer->resizeColumnsToContents();
     this->ui->tableViewCustomer->resizeRowsToContents();
@@ -850,7 +852,7 @@ void MainWindow::on_tableViewPricelist_customContextMenuRequested(const QPoint &
 
         pricelistContextMenu->addAction(add_to_cart);
 
-        signalMapperPricelist->setMapping(add_to_cart, QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 2).data(Qt::DisplayRole).toString()));
+        signalMapperPricelist->setMapping(add_to_cart, QString( this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 2).data(Qt::DisplayRole).toString()));
 
 
     }
@@ -893,11 +895,13 @@ void MainWindow::on_actionExportODF_triggered()
 
             for (int i = 0; i < row ; ++i) {
 
-                products << this->modelCart->data(this->modelCart->index(i, 1), Qt::DisplayRole).toString()+" ("+this->modelCart->data(this->modelCart->index(i, 2), Qt::DisplayRole).toString()+")";
+                products << QString(this->modelCart->data(this->modelCart->index(i, 1), Qt::DisplayRole).toString()+" ("+this->modelCart->data(this->modelCart->index(i, 2), Qt::DisplayRole).toString()+")").toHtmlEscaped();
 
             }
 
             replacementvars["$PRODUCTS$"] = products.join("\n");
+
+            qDebug() << products;
 
             genericHelper::replaceVarInDocx(extractedDocxDir,replacementvars);
 
@@ -976,9 +980,10 @@ void MainWindow::on_actionAdd_to_Cart_triggered()
 {
     qDebug() << "on_add_Cart " << this->modelCart->tableName();
 
-    QString  productid = QString( this->modelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
+    QString  productid = QString( this->proxymodelPricelist->index( this->ui->tableViewPricelist->selectionModel()->currentIndex().row(), 1).data(Qt::DisplayRole).toString());
     osDatabase->addItemToCart(productid.toInt(),this->modelCart->tableName());
     this->modelCart->select();
+
 }
 
 void MainWindow::on_actionRemove_From_Cart_triggered()

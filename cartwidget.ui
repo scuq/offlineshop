@@ -15,7 +15,12 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
-    <widget class="QTableView" name="tableViewCart"/>
+    <widget class="QTableView" name="tableViewCart">
+     <property name="styleSheet">
+      <string notr="true">alternate-background-color: rgb(255, 245, 207);
+background-color: white;</string>
+     </property>
+    </widget>
    </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_4">

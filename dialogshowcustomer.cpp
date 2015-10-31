@@ -66,8 +66,9 @@ void DialogShowcustomer::setCountry(QString country)
 
 void DialogShowcustomer::setInfo(QString info)
 {
-    this->ui->plainTextEditInfo->clear();
-    this->ui->plainTextEditInfo->appendHtml(info);
+    this->ui->textEditInfo->clear();
+
+    this->ui->textEditInfo->append(info);
 }
 
 void DialogShowcustomer::on_pushButtonClose_clicked()

@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>offlineshop - Image</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(247, 247, 247);</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>1</number>
@@ -33,8 +36,11 @@
     <widget class="QLineEdit" name="lineEditProductId">
      <property name="font">
       <font>
-       <pointsize>16</pointsize>
+       <pointsize>12</pointsize>
       </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 242);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -112,13 +118,44 @@
     <widget class="QPlainTextEdit" name="plainTextEditProductName">
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
       </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 242);</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item row="7" column="0" colspan="2">
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 242);</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

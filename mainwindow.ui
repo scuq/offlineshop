@@ -22,7 +22,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="tabsClosable">
        <bool>true</bool>
@@ -46,6 +46,10 @@
          <widget class="QTableView" name="tableViewPricelist">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">alternate-background-color: rgb(231, 220, 255);
+background-color: white;</string>
           </property>
           <property name="editTriggers">
            <set>QAbstractItemView::DoubleClicked|QAbstractItemView::SelectedClicked</set>
@@ -88,6 +92,10 @@
          <widget class="QTableView" name="tableViewCustomer">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">alternate-background-color: rgb(219, 255, 202);
+background-color: white;</string>
           </property>
           <property name="alternatingRowColors">
            <bool>true</bool>

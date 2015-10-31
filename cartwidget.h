@@ -21,6 +21,7 @@ public:
     void setDate(QString date);
     void setModel(QSqlRelationalTableModel *model);
     void resizeColumns();
+    void resizeRows();
     QString getCartName();
     QString getCustomerName();
     QString getDate();

@@ -46,6 +46,11 @@ void CartWidget::resizeColumns()
     this->ui->tableViewCart->resizeColumnsToContents();
 }
 
+void CartWidget::resizeRows()
+{
+    this->ui->tableViewCart->resizeRowsToContents();
+}
+
 QString CartWidget::getCartName()
 {
     return this->ui->lineEditCartName->text();
